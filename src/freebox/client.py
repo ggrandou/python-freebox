@@ -15,6 +15,7 @@ from freebox.events import EventStream
 from freebox.exceptions import AuthenticationError, FreeboxError, TokenRevoked
 from freebox.lan import Lan
 from freebox.sfp import Sfp
+from freebox.switch import Switch
 from freebox.system import System
 
 _DEFAULT_HOST = "mafreebox.freebox.fr"
@@ -103,6 +104,11 @@ class Freebox:
     def sfp(self) -> Sfp:
         """Access the SFP API."""
         return Sfp(self)
+
+    @property
+    def switch(self) -> Switch:
+        """Access the Switch API."""
+        return Switch(self)
 
     @property
     def system(self) -> System:

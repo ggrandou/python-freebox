@@ -42,6 +42,7 @@ from freebox.connection import (
     XdslStatus,
 )
 from freebox.sfp import Sfp, SfpConfig, SfpStatus
+from freebox.switch import Switch, SwitchPortConfig, SwitchPortMacEntry, SwitchPortStats, SwitchPortStatus
 from freebox.system import (
     System,
     SystemConfig,
@@ -94,6 +95,12 @@ __all__ = [
     "Sfp",
     "SfpConfig",
     "SfpStatus",
+    # Switch
+    "Switch",
+    "SwitchPortConfig",
+    "SwitchPortMacEntry",
+    "SwitchPortStats",
+    "SwitchPortStatus",
     # System
     "System",
     "SystemConfig",

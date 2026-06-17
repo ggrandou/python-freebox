@@ -402,10 +402,10 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route                     | Function | Tested   |
 | -------- | ------------------------- | -------- | :------: |
-| GET      | `/switch/status/`         | —        | —        |
-| GET      | `/switch/port/{id}`       | —        | —        |
-| PUT      | `/switch/port/{id}`       | —        | —        |
-| GET      | `/switch/port/{id}/stats` | —        | —        |
+| GET      | `/switch/status/`         | `fb.switch.status()`          | ✓        |
+| GET      | `/switch/port/{id}`       | `fb.switch.port_config(id)`   | ✓        |
+| PUT      | `/switch/port/{id}`       | `fb.switch.set_port_config(id, ...)` | —  |
+| GET      | `/switch/port/{id}/stats` | `fb.switch.port_stats(id)`    | ✓        |
 
 ## System
 
