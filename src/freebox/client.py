@@ -11,6 +11,7 @@ from freebox.connection import Connection
 from freebox.discovery import DiscoveryInfo, discover_http, ssl_context
 from freebox.events import EventStream
 from freebox.exceptions import AuthenticationError, TokenRevoked
+from freebox.lan import Lan
 
 _DEFAULT_HOST = "mafreebox.freebox.fr"
 _API_BASE = "/api/v{version}/"
@@ -78,6 +79,11 @@ class Freebox:
     def connection(self) -> Connection:
         """Access the Connection API."""
         return Connection(self)
+
+    @property
+    def lan(self) -> Lan:
+        """Access the LAN API."""
+        return Lan(self)
 
     def open(self) -> None:
         """Discover the Freebox, register the app if needed, and open a session."""

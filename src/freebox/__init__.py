@@ -1,5 +1,17 @@
 from freebox.auth import Auth, AuthorizationStatus
 from freebox.client import Freebox
+from freebox.lan import (
+    Lan,
+    LanConfig,
+    LanHost,
+    LanHostL2Ident,
+    LanHostL3Connectivity,
+    LanHostName,
+    LanHostNetworkControl,
+    LanHostType,
+    LanInterface,
+    Route,
+)
 from freebox.connection import (
     Connection,
     ConnectionConfiguration,
@@ -41,6 +53,17 @@ __all__ = [
     # Auth
     "Auth",
     "AuthorizationStatus",
+    # LAN
+    "Lan",
+    "LanConfig",
+    "LanHost",
+    "LanHostL2Ident",
+    "LanHostL3Connectivity",
+    "LanHostName",
+    "LanHostNetworkControl",
+    "LanHostType",
+    "LanInterface",
+    "Route",
     # Discovery
     "DiscoveryInfo",
     "discover",
