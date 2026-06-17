@@ -1,0 +1,133 @@
+#!/usr/bin/env python3
+"""Report current Freebox DHCP configuration and leases.
+
+Usage:
+    tools/test_dhcp [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+"""
+from __future__ import annotations
+
+import datetime
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<28} {value}")
+
+
+def fmt_ts(ts: int) -> str:
+    if not ts:
+        return "—"
+    return datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def fmt_duration(seconds: int) -> str:
+    if not seconds:
+        return "—"
+    h, s = divmod(seconds, 3600)
+    m, s = divmod(s, 60)
+    return f"{h:02d}:{m:02d}:{s:02d}"
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    dhcp = fb.dhcp
+
+    # ── DHCP config ────────────────────────────────────────────────────────────
+    section("DHCP Configuration")
+    try:
+        c = dhcp.config()
+        row("enabled", c.enabled)
+        row("sticky assign", c.sticky_assign)
+        row("range start", c.ip_range_start)
+        row("range end", c.ip_range_end)
+        row("gateway", c.gateway)
+        row("netmask", c.netmask)
+        row("always broadcast", c.always_broadcast)
+        row("ignore out-of-range hint", c.ignore_out_of_range_hint)
+        if c.boot_server:
+            row("boot server", c.boot_server)
+        if c.boot_file:
+            row("boot file", c.boot_file)
+        dns = [s for s in c.dns if s]
+        row("DNS servers", ", ".join(dns) if dns else "—")
+        if c.options:
+            print("  DHCP options:")
+            for opt in c.options:
+                print(f"    {opt.id:<32} {opt.val}")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── Static leases ──────────────────────────────────────────────────────────
+    section("DHCP Static Leases")
+    try:
+        leases = dhcp.static_leases()
+        if not leases:
+            print("  (no static leases)")
+        for lease in leases:
+            name = lease.hostname or lease.mac
+            comment = f"  [{lease.comment}]" if lease.comment else ""
+            print(f"\n  {name}{comment}")
+            row("  MAC", lease.mac)
+            row("  IP", lease.ip)
+            if lease.options:
+                print("  DHCP options:")
+                for opt in lease.options:
+                    print(f"      {opt.id:<30} {opt.val}")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── Dynamic leases ─────────────────────────────────────────────────────────
+    section("DHCP Dynamic Leases")
+    try:
+        leases = dhcp.dynamic_leases()
+        if not leases:
+            print("  (no dynamic leases)")
+        for lease in leases:
+            static_tag = " [static]" if lease.is_static else ""
+            print(f"\n  {lease.hostname or lease.mac}{static_tag}")
+            row("  MAC", lease.mac)
+            row("  IP", lease.ip)
+            row("  assigned", fmt_ts(lease.assign_time))
+            row("  last refresh", fmt_ts(lease.refresh_time))
+            row("  lease remaining", fmt_duration(lease.lease_remaining))
+            if lease.options:
+                print("  DHCP options:")
+                for opt in lease.options:
+                    print(f"      {opt.id:<30} {opt.val}")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()

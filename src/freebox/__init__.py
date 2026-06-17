@@ -1,5 +1,12 @@
 from freebox.auth import Auth, AuthorizationStatus
 from freebox.client import Freebox
+from freebox.dhcp import (
+    Dhcp,
+    DhcpConfig,
+    DhcpDynamicLease,
+    DhcpOption,
+    DhcpStaticLease,
+)
 from freebox.lan import (
     Lan,
     LanConfig,
@@ -53,6 +60,12 @@ __all__ = [
     # Auth
     "Auth",
     "AuthorizationStatus",
+    # DHCP
+    "Dhcp",
+    "DhcpConfig",
+    "DhcpDynamicLease",
+    "DhcpOption",
+    "DhcpStaticLease",
     # LAN
     "Lan",
     "LanConfig",

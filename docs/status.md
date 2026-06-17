@@ -94,16 +94,16 @@ Legend: ✓ = done · — = not done yet
 
 ## DHCP
 
-| Method   | Route                     | Function | Tested   |
-| -------- | ------------------------- | -------- | :------: |
-| GET      | `/dhcp/config/`           | —        | —        |
-| PUT      | `/dhcp/config/`           | —        | —        |
-| GET      | `/dhcp/dynamic_lease/`    | —        | —        |
-| GET      | `/dhcp/static_lease/`     | —        | —        |
-| GET      | `/dhcp/static_lease/{id}` | —        | —        |
-| POST     | `/dhcp/static_lease/`     | —        | —        |
-| PUT      | `/dhcp/static_lease/{id}` | —        | —        |
-| DELETE   | `/dhcp/static_lease/{id}` | —        | —        |
+| Method   | Route                     | Function                               | Tested   |
+| -------- | ------------------------- | -------------------------------------- | :------: |
+| GET      | `/dhcp/config/`           | fb.dhcp.config()                       | —        |
+| PUT      | `/dhcp/config/`           | fb.dhcp.set_config()                   | —        |
+| GET      | `/dhcp/dynamic_lease/`    | fb.dhcp.dynamic_leases()               | —        |
+| GET      | `/dhcp/static_lease/`     | fb.dhcp.static_leases()                | —        |
+| GET      | `/dhcp/static_lease/{id}` | fb.dhcp.static_lease(id)               | —        |
+| POST     | `/dhcp/static_lease/`     | fb.dhcp.add_static_lease(mac, ip)      | —        |
+| PUT      | `/dhcp/static_lease/{id}` | fb.dhcp.set_static_lease(id)           | —        |
+| DELETE   | `/dhcp/static_lease/{id}` | fb.dhcp.delete_static_lease(id)        | —        |
 
 ## DHCPv6
 

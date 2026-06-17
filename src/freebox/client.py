@@ -8,6 +8,7 @@ import httpx
 
 from freebox.auth import Auth, raise_for_error_code
 from freebox.connection import Connection
+from freebox.dhcp import Dhcp
 from freebox.discovery import DiscoveryInfo, discover_http, ssl_context
 from freebox.events import EventStream
 from freebox.exceptions import AuthenticationError, TokenRevoked
@@ -79,6 +80,11 @@ class Freebox:
     def connection(self) -> Connection:
         """Access the Connection API."""
         return Connection(self)
+
+    @property
+    def dhcp(self) -> Dhcp:
+        """Access the DHCP API."""
+        return Dhcp(self)
 
     @property
     def lan(self) -> Lan:
