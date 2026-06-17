@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+"""Quick integration test against a real Freebox.
+
+Usage:
+    tools/test_client [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+
+def check(label: str, result: object) -> None:
+    print(f"  {'OK':<6} {label}")
+    return result
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …\n")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+
+    fb.open()
+    d = fb.discovery
+    print(f"  device      : {d.get('device_name')}  ({d.get('box_model_name')})")
+    print(f"  uid         : {d.get('uid')}")
+    print(f"  API version : {d.get('api_version')}")
+    print(f"  remote url  : https://{d.get('api_domain')}:{d.get('https_port')}{d.get('api_base_url')}")
+    print(f"  https       : {d.get('https_available')}")
+    print()
+
+    status = fb.get("connection/")
+    check("connection/", status)
+    bw_up   = status.get('bandwidth_up', 0) // 1_000_000
+    bw_down = status.get('bandwidth_down', 0) // 1_000_000
+    print(f"         state      : {status.get('state')}")
+    print(f"         media      : {status.get('media')}  ({status.get('type')})")
+    print(f"         bw down    : {bw_down} Mbps")
+    print(f"         bw up      : {bw_up} Mbps")
+    print(f"         IPv4       : {status.get('ipv4')}")
+    print(f"         IPv6       : {status.get('ipv6')}")
+    print(f"         rate down  : {status.get('rate_down')} Bps")
+    print(f"         rate up    : {status.get('rate_up')} Bps")
+    print()
+
+    system = fb.get("system/")
+    check("system/", system)
+    print(f"         model      : {system.get('box_model_name', system.get('board_name'))}")
+    print(f"         firmware   : {system.get('firmware_version')}")
+    print(f"         uptime     : {system.get('uptime')}")
+    print()
+
+    fb.close()
+    print("\nSession closed. All checks passed.")
+
+
+if __name__ == "__main__":
+    main()
