@@ -1,0 +1,265 @@
+#!/usr/bin/env python3
+"""Scrape Freebox API documentation from local interface.
+
+Usage:
+    src/scrape_doc [freebox_ip]
+
+Outputs markdown files to docs/api/.
+No authentication required — the doc is public static HTML.
+"""
+from __future__ import annotations
+
+import json
+import re
+import sys
+from html.parser import HTMLParser
+from pathlib import Path
+from typing import Optional
+
+import requests
+
+FREEBOX_IP = sys.argv[1] if len(sys.argv) > 1 else '192.168.1.254'
+BASE = f'http://{FREEBOX_IP}'
+OUT_DIR = Path(__file__).parent.parent / 'docs' / 'api'
+
+
+# ── Minimal HTML tree ──────────────────────────────────────────────────────────
+
+class Node:
+    __slots__ = ('tag', 'attrs', 'children', 'parent')
+
+    def __init__(self, tag: str, attrs: dict) -> None:
+        self.tag = tag
+        self.attrs = attrs
+        self.children: list[Node | str] = []
+        self.parent: Optional[Node] = None
+
+    @property
+    def classes(self) -> set[str]:
+        return set(self.attrs.get('class', '').split())
+
+    def text_content(self) -> str:
+        parts = []
+        for c in self.children:
+            parts.append(c if isinstance(c, str) else c.text_content())
+        return ''.join(parts)
+
+
+VOID_TAGS = {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+             'link', 'meta', 'param', 'source', 'track', 'wbr'}
+
+
+class _TreeBuilder(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.root = Node('root', {})
+        self._stack: list[Node] = [self.root]
+
+    def handle_starttag(self, tag: str, attrs: list) -> None:
+        node = Node(tag, dict(attrs))
+        node.parent = self._stack[-1]
+        self._stack[-1].children.append(node)
+        if tag not in VOID_TAGS:
+            self._stack.append(node)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in VOID_TAGS:
+            return
+        for i in range(len(self._stack) - 1, 0, -1):
+            if self._stack[i].tag == tag:
+                self._stack = self._stack[:i]
+                return
+
+    def handle_data(self, data: str) -> None:
+        self._stack[-1].children.append(data)
+
+
+def parse_html(html: str) -> Node:
+    builder = _TreeBuilder()
+    builder.feed(html)
+    return builder.root
+
+
+# ── HTML → Markdown converter ──────────────────────────────────────────────────
+
+def _children_md(node: Node) -> str:
+    parts = []
+    for c in node.children:
+        parts.append(c if isinstance(c, str) else _node_md(c))
+    return ''.join(parts)
+
+
+def _node_md(node: Node) -> str:
+    tag = node.tag
+
+    if tag in ('script', 'style', 'head', 'nav'):
+        return ''
+
+    if tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
+        text = node.text_content().replace('¶', '').strip()
+        return '\n\n' + '#' * int(tag[1]) + ' ' + text + '\n\n'
+
+    if tag == 'pre':
+        code_node = next((c for c in node.children if isinstance(c, Node) and c.tag == 'code'), None)
+        lang = ''
+        if code_node:
+            for cls in code_node.classes:
+                if cls.startswith('highlight-'):
+                    lang = cls[len('highlight-'):]
+                    break
+        text = (code_node or node).text_content()
+        return '\n\n```' + lang + '\n' + text.strip('\n') + '\n```\n\n'
+
+    if tag == 'code':
+        return '`' + node.text_content() + '`'
+
+    if tag == 'a':
+        text = node.text_content().strip()
+        if text == '¶':
+            return ''
+        href = node.attrs.get('href', '')
+        if not href or href.startswith('#'):
+            return text
+        return f'[{text}]({href})'
+
+    if tag == 'p':
+        text = _children_md(node).strip()
+        return ('\n\n' + text + '\n\n') if text else ''
+
+    if tag == 'li':
+        return '- ' + _children_md(node).strip() + '\n'
+
+    if tag in ('ul', 'ol'):
+        return '\n' + _children_md(node) + '\n'
+
+    if tag == 'dt':
+        return '\n**' + _children_md(node).strip() + '**\n'
+
+    if tag == 'dd':
+        return ': ' + _children_md(node).strip() + '\n'
+
+    if tag == 'strong' or tag == 'b':
+        return '**' + node.text_content() + '**'
+
+    if tag == 'em' or tag == 'i':
+        return '*' + node.text_content() + '*'
+
+    if tag == 'table':
+        return _table_md(node)
+
+    return _children_md(node)
+
+
+def _walk(node: Node):
+    yield node
+    for c in node.children:
+        if isinstance(c, Node):
+            yield from _walk(c)
+
+
+def _table_md(table: Node) -> str:
+    rows: list[list[str]] = []
+    for n in _walk(table):
+        if n.tag == 'tr':
+            cells = [
+                _children_md(c).strip().replace('\n', ' ')
+                for c in n.children
+                if isinstance(c, Node) and c.tag in ('th', 'td')
+            ]
+            if cells:
+                rows.append(cells)
+    if not rows:
+        return ''
+    ncols = max(len(r) for r in rows)
+    rows = [r + [''] * (ncols - len(r)) for r in rows]
+    sep = ['---'] * ncols
+    lines = [
+        '| ' + ' | '.join(rows[0]) + ' |',
+        '| ' + ' | '.join(sep) + ' |',
+    ] + ['| ' + ' | '.join(r) + ' |' for r in rows[1:]]
+    return '\n\n' + '\n'.join(lines) + '\n\n'
+
+
+# ── Section extraction ─────────────────────────────────────────────────────────
+
+def find_sections(root: Node) -> dict[str, Node]:
+    return {
+        n.attrs['id']: n
+        for n in _walk(root)
+        if isinstance(n, Node) and n.tag == 'div' and 'section' in n.classes and n.attrs.get('id')
+    }
+
+
+def _section_content_md(section: Node) -> str:
+    """Convert a section to markdown, excluding nested sub-sections."""
+    parts = []
+    for child in section.children:
+        if isinstance(child, Node) and child.tag == 'div' and 'section' in child.classes:
+            continue
+        parts.append(child if isinstance(child, str) else _node_md(child))
+    return ''.join(parts)
+
+
+def _collect_md(idx_node: dict, sections: dict[str, Node]) -> str:
+    """Recursively collect markdown for an index subtree."""
+    parts = []
+    sid = idx_node.get('id', '')
+    if sid and sid in sections:
+        parts.append(_section_content_md(sections[sid]))
+    for child in idx_node.get('children', []):
+        parts.append(_collect_md(child, sections))
+    return ''.join(parts)
+
+
+def _clean(md: str) -> str:
+    # Remove stray pilcrow artefacts (¶ and surrounding whitespace)
+    md = re.sub(r'\s*¶\s*', '', md)
+    md = re.sub(r'\n{3,}', '\n\n', md)
+    return md.strip() + '\n'
+
+
+# ── Main ───────────────────────────────────────────────────────────────────────
+
+def main() -> None:
+    print(f'Fetching documentation from {BASE} …', file=sys.stderr)
+
+    r = requests.get(f'{BASE}/doc/docindex.json', timeout=5)
+    r.raise_for_status()
+    docindex = r.json()
+
+    r = requests.get(f'{BASE}/doc/index.html', timeout=30)
+    r.raise_for_status()
+    html = r.content.decode('utf-8')
+    print(f'Parsing HTML ({len(html):,} bytes) …', file=sys.stderr)
+
+    root = parse_html(html)
+    sections = find_sections(root)
+    print(f'Found {len(sections)} sections', file=sys.stderr)
+
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Save index.json
+    (OUT_DIR / 'index.json').write_text(
+        json.dumps(docindex, indent=2, ensure_ascii=False), encoding='utf-8'
+    )
+
+    # Walk the index tree: save one file per depth-3 section (the chapters)
+    saved = 0
+    for lvl1 in docindex.get('children', []):
+        for lvl2 in lvl1.get('children', []):
+            for chapter in lvl2.get('children', []):
+                sid   = chapter.get('id', '')
+                title = chapter.get('title', sid)
+                fname = sid.replace('-', '_') + '.md'
+                md    = _collect_md(chapter, sections)
+                md    = _clean(md)
+                path  = OUT_DIR / fname
+                path.write_text(md, encoding='utf-8')
+                print(f'  {fname:40s}  {len(md):>8,} chars   {title}', file=sys.stderr)
+                saved += 1
+
+    print(f'\nSaved {saved} files → {OUT_DIR}/', file=sys.stderr)
+
+
+if __name__ == '__main__':
+    main()
