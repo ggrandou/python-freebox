@@ -35,6 +35,8 @@ def main() -> None:
     )
 
     fb.open()
+    perms = ", ".join(k for k, v in fb.permissions.items() if v) or "none"
+    print(f"  permissions : {perms}")
     d = fb.discovery
     print(f"  device      : {d.device_name}  ({d.box_model_name})")
     print(f"  uid         : {d.uid}")
