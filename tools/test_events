@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""Monitor WebSocket events from a real Freebox.
+
+Usage:
+    tools/test_events [freebox_host] [event ...]
+
+    tools/test_events
+    tools/test_events mafreebox.freebox.fr vm_state_changed lan_host_l3addr_reachable
+
+The app token is stored in .freebox_test_token between runs.
+Press Ctrl+C to stop.
+"""
+from __future__ import annotations
+
+import sys
+from datetime import datetime
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+ALL_EVENTS = [
+    "vm_state_changed",
+    "vm_disk_task_done",
+    "lan_host_l3addr_reachable",
+    "lan_host_l3addr_unreachable",
+]
+
+EVENTS = sys.argv[2:] or ALL_EVENTS
+
+
+def format_lan_host(result: dict) -> str:
+    name = result.get("primary_name") or result.get("default_name", "?")
+    host_type = result.get("host_type", "")
+    reachable = result.get("reachable", False)
+    state = "up" if reachable else "down"
+
+    conns = result.get("l3connectivities", [])
+    ipv4 = [c["addr"] for c in conns if c.get("af") == "ipv4" and c.get("active")]
+    ipv6 = [c["addr"] for c in conns if c.get("af") == "ipv6" and c.get("active") and c.get("reachable")]
+    ip_str = ", ".join(ipv4 + ipv6) if (ipv4 or ipv6) else "no IP"
+
+    ap = result.get("access_point", {})
+    link = ap.get("connectivity_type", ap.get("type", ""))
+
+    parts = [f"{name}  [{state}]  {ip_str}"]
+    if host_type:
+        parts.append(host_type)
+    if link:
+        parts.append(link)
+    return "  " + "  |  ".join(parts)
+
+
+def format_result(source: str, event: str, result: object) -> str:
+    if source == "lan" and event in ("host_l3addr_reachable", "host_l3addr_unreachable") and isinstance(result, dict):
+        return format_lan_host(result)
+    if result is not None:
+        return f"  {result}"
+    return ""
+
+
+LAN_EVENTS = [
+    "lan_host_l3addr_reachable",
+    "lan_host_l3addr_unreachable",
+]
+
+
+def listen(fb: Freebox, events: list[str]) -> None:
+    print(f"Subscribed to: {', '.join(events)}")
+    print("Waiting for events (Ctrl+C to stop) …\n")
+    with fb.events(events) as stream:
+        for notif in stream:
+            ts = datetime.now().strftime("%H:%M:%S")
+            result_str = format_result(notif.source, notif.event, notif.result)
+            print(f"[{ts}] {notif.source}.{notif.event}{result_str}")
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+    print()
+
+    try:
+        listen(fb, EVENTS)
+    except FreeboxError:
+        if EVENTS == ALL_EVENTS:
+            print("Some events unsupported, falling back to LAN events only.\n")
+            try:
+                listen(fb, LAN_EVENTS)
+            except KeyboardInterrupt:
+                pass
+        else:
+            raise
+    except KeyboardInterrupt:
+        pass
+
+    fb.close()
+    print("\nDone.")
+
+
+if __name__ == "__main__":
+    main()

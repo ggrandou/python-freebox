@@ -8,7 +8,8 @@ import httpx
 
 from freebox.auth import Auth, raise_for_error_code
 from freebox.discovery import DiscoveryInfo, discover_http, ssl_context
-from freebox.exceptions import TokenRevoked
+from freebox.events import EventStream
+from freebox.exceptions import AuthenticationError, TokenRevoked
 
 _DEFAULT_HOST = "mafreebox.freebox.fr"
 _API_BASE = "/api/v{version}/"
@@ -42,6 +43,7 @@ class Freebox:
         on_pending: Callable[[str], None] | None = None,
     ) -> None:
         self._host = host
+        self._port = port
         self._auth = Auth(
             app_id=app_id,
             app_name=app_name,
@@ -95,6 +97,23 @@ class Freebox:
     def delete(self, path: str, **kwargs: Any) -> Any:
         return self._request("DELETE", path, **kwargs)
 
+    def events(self, events: list[str]) -> EventStream:
+        """Return a WebSocket event stream subscribed to the given event names.
+
+        The returned :class:`~freebox.EventStream` must be used as a context
+        manager.  See :class:`~freebox.EventStream` for usage.
+
+        Raises :class:`~freebox.AuthenticationError` if the client is not open.
+        """
+        if not self._auth.session_token:
+            raise AuthenticationError("Not connected; call open() first")
+        return EventStream(
+            url=self._ws_url("ws/event"),
+            session_token=self._auth.session_token,
+            events=events,
+            ssl_ctx=ssl_context(),
+        )
+
     # ── Internal ───────────────────────────────────────────────────────────────
 
     @property
@@ -103,6 +122,10 @@ class Freebox:
 
     def _url(self, path: str) -> str:
         return _API_BASE.format(version=self._api_version) + path.lstrip("/")
+
+    def _ws_url(self, path: str) -> str:
+        port_str = f":{self._port}" if self._port else ""
+        return f"wss://{self._host}{port_str}" + _API_BASE.format(version=self._api_version) + path.lstrip("/")
 
     def _raw_request(self, method: str, path: str, *, authenticated: bool = True, **kwargs: Any) -> Any:
         """Send a request and return the result, raising on API errors."""

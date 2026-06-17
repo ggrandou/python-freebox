@@ -1,6 +1,7 @@
 from freebox.auth import Auth, AuthorizationStatus
 from freebox.client import Freebox
 from freebox.discovery import DiscoveryInfo, discover, discover_http, discover_mdns, discover_remote_port
+from freebox.events import EventStream, Notification
 from freebox.exceptions import (
     AppsDenied,
     AuthenticationError,
@@ -25,6 +26,9 @@ __all__ = [
     "discover_http",
     "discover_mdns",
     "discover_remote_port",
+    # Events
+    "EventStream",
+    "Notification",
     # Exceptions
     "FreeboxError",
     "AuthenticationError",
