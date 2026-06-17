@@ -401,9 +401,9 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route               | Function | Tested   |
 | -------- | ------------------- | -------- | :------: |
-| GET      | `/system/`          | —        | —        |
-| POST     | `/system/reboot/`   | —        | —        |
-| POST     | `/system/shutdown/` | —        | —        |
+| GET      | `/system/`          | `fb.system.config()`   | ✓        |
+| POST     | `/system/reboot/`   | `fb.system.reboot()`   | —        |
+| POST     | `/system/shutdown/` | `fb.system.shutdown()` | —        |
 
 ## TFTP
 

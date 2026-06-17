@@ -15,6 +15,7 @@ from freebox.events import EventStream
 from freebox.exceptions import AuthenticationError, FreeboxError, TokenRevoked
 from freebox.lan import Lan
 from freebox.sfp import Sfp
+from freebox.system import System
 
 _DEFAULT_HOST = "mafreebox.freebox.fr"
 _API_BASE = "/api/v{version}/"
@@ -102,6 +103,11 @@ class Freebox:
     def sfp(self) -> Sfp:
         """Access the SFP API."""
         return Sfp(self)
+
+    @property
+    def system(self) -> System:
+        """Access the System API."""
+        return System(self)
 
     def open(self) -> None:
         """Discover the Freebox, register the app if needed, and open a session."""

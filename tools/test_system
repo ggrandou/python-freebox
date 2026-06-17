@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+"""Report current Freebox system information.
+
+Usage:
+    tools/test_system [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<28} {value}")
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    # ── System info ────────────────────────────────────────────────────────────
+    section("System")
+    try:
+        c = fb.system.config()
+        row("firmware_version", c.firmware_version)
+        row("serial", c.serial)
+        row("mac", c.mac)
+        row("board_name", c.board_name)
+        row("uptime", c.uptime)
+        row("box_authenticated", c.box_authenticated)
+        row("disk_status", c.disk_status)
+        row("user_main_storage", c.user_main_storage or "—")
+        row("user_storage_powered", c.user_storage_powered)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+        fb.close()
+        return
+
+    if c.model_info:
+        section("Model info")
+        m = c.model_info
+        row("name", m.name)
+        row("pretty_name", m.pretty_name)
+        caps = [k[4:] for k, v in vars(m).items() if k.startswith("has_") and v]
+        row("capabilities", ", ".join(caps) if caps else "—")
+
+    if c.sensors:
+        section("Thermal sensors")
+        for s in c.sensors:
+            row(s.name, f"{s.value} °C")
+
+    if c.fans:
+        section("Fans")
+        for f in c.fans:
+            row(f.name, f"{f.value} RPM")
+
+    if c.expansions:
+        section("Expansions")
+        for e in c.expansions:
+            row(f"slot {e.slot} ({e.type})", f"present={e.present}  supported={e.supported}  bundle={e.bundle or '—'}")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()

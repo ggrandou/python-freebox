@@ -42,6 +42,14 @@ from freebox.connection import (
     XdslStatus,
 )
 from freebox.sfp import Sfp, SfpConfig, SfpStatus
+from freebox.system import (
+    System,
+    SystemConfig,
+    SystemExpansion,
+    SystemFan,
+    SystemModelInfo,
+    SystemSensor,
+)
 from freebox.discovery import DiscoveryInfo, discover, discover_http, discover_mdns, discover_remote_port
 from freebox.events import EventStream, Notification
 from freebox.exceptions import (
@@ -86,6 +94,13 @@ __all__ = [
     "Sfp",
     "SfpConfig",
     "SfpStatus",
+    # System
+    "System",
+    "SystemConfig",
+    "SystemExpansion",
+    "SystemFan",
+    "SystemModelInfo",
+    "SystemSensor",
     # Discovery
     "DiscoveryInfo",
     "discover",
