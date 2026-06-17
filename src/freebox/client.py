@@ -9,10 +9,12 @@ import httpx
 from freebox.auth import Auth, raise_for_error_code
 from freebox.connection import Connection
 from freebox.dhcp import Dhcp
+from freebox.dhcpv6 import Dhcpv6
 from freebox.discovery import DiscoveryInfo, discover_http, ssl_context
 from freebox.events import EventStream
-from freebox.exceptions import AuthenticationError, TokenRevoked
+from freebox.exceptions import AuthenticationError, FreeboxError, TokenRevoked
 from freebox.lan import Lan
+from freebox.sfp import Sfp
 
 _DEFAULT_HOST = "mafreebox.freebox.fr"
 _API_BASE = "/api/v{version}/"
@@ -87,9 +89,19 @@ class Freebox:
         return Dhcp(self)
 
     @property
+    def dhcpv6(self) -> Dhcpv6:
+        """Access the DHCPv6 API."""
+        return Dhcpv6(self)
+
+    @property
     def lan(self) -> Lan:
         """Access the LAN API."""
         return Lan(self)
+
+    @property
+    def sfp(self) -> Sfp:
+        """Access the SFP API."""
+        return Sfp(self)
 
     def open(self) -> None:
         """Discover the Freebox, register the app if needed, and open a session."""
@@ -151,7 +163,10 @@ class Freebox:
         if authenticated and self._auth.session_token:
             headers["X-Fbx-App-Auth"] = self._auth.session_token
         resp = self._http.request(method, self._url(path), headers=headers, **kwargs)
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            raise FreeboxError(str(exc)) from exc
         body = resp.json()
         if not body.get("success"):
             raise_for_error_code(body.get("error_code", "unknown"), body.get("msg", ""))

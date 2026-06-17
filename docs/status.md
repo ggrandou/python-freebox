@@ -109,8 +109,8 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route             | Function | Tested   |
 | -------- | ----------------- | -------- | :------: |
-| GET      | `/dhcpv6/config/` | —        | —        |
-| PUT      | `/dhcpv6/config/` | —        | —        |
+| GET      | `/dhcpv6/config/` | `fb.dhcpv6.config()`     | —        |
+| PUT      | `/dhcpv6/config/` | `fb.dhcpv6.set_config()` | —        |
 
 ## Downloads
 
@@ -352,8 +352,9 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route         | Function | Tested   |
 | -------- | ------------- | -------- | :------: |
-| GET      | `/sfp/status` | —        | —        |
-| PUT      | `/sfp/config` | —        | —        |
+| GET      | `/sfp/status` | fb.sfp.status()    | —        |
+| GET      | `/sfp/config` | fb.sfp.config()    | —        |
+| PUT      | `/sfp/config` | fb.sfp.set_config() | —        |
 
 ## Share Links
 

@@ -7,6 +7,7 @@ from freebox.dhcp import (
     DhcpOption,
     DhcpStaticLease,
 )
+from freebox.dhcpv6 import Dhcpv6, Dhcpv6Config
 from freebox.lan import (
     Lan,
     LanConfig,
@@ -40,6 +41,7 @@ from freebox.connection import (
     XdslStats,
     XdslStatus,
 )
+from freebox.sfp import Sfp, SfpConfig, SfpStatus
 from freebox.discovery import DiscoveryInfo, discover, discover_http, discover_mdns, discover_remote_port
 from freebox.events import EventStream, Notification
 from freebox.exceptions import (
@@ -66,6 +68,9 @@ __all__ = [
     "DhcpDynamicLease",
     "DhcpOption",
     "DhcpStaticLease",
+    # DHCPv6
+    "Dhcpv6",
+    "Dhcpv6Config",
     # LAN
     "Lan",
     "LanConfig",
@@ -77,6 +82,10 @@ __all__ = [
     "LanHostType",
     "LanInterface",
     "Route",
+    # SFP
+    "Sfp",
+    "SfpConfig",
+    "SfpStatus",
     # Discovery
     "DiscoveryInfo",
     "discover",
