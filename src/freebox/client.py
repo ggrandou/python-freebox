@@ -7,6 +7,7 @@ from typing import Any
 import httpx
 
 from freebox.auth import Auth, raise_for_error_code
+from freebox.connection import Connection
 from freebox.discovery import DiscoveryInfo, discover_http, ssl_context
 from freebox.events import EventStream
 from freebox.exceptions import AuthenticationError, TokenRevoked
@@ -72,6 +73,11 @@ class Freebox:
     def permissions(self) -> dict[str, bool]:
         """App permissions granted by the user."""
         return self._auth.permissions
+
+    @property
+    def connection(self) -> Connection:
+        """Access the Connection API."""
+        return Connection(self)
 
     def open(self) -> None:
         """Discover the Freebox, register the app if needed, and open a session."""

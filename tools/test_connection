@@ -1,0 +1,191 @@
+#!/usr/bin/env python3
+"""Report current Freebox connection status.
+
+Usage:
+    tools/test_connection [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+
+def fmt_bps(bps: int) -> str:
+    if bps >= 1_000_000:
+        return f"{bps / 1_000_000:.0f} Mbps"
+    if bps >= 1_000:
+        return f"{bps / 1_000:.0f} Kbps"
+    return f"{bps} bps"
+
+
+def fmt_bytes(n: int) -> str:
+    for unit in ("B", "KB", "MB", "GB", "TB"):
+        if n < 1024:
+            return f"{n:.1f} {unit}"
+        n /= 1024
+    return f"{n:.1f} PB"
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<28} {value}")
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    conn = fb.connection
+
+    # ── Status ─────────────────────────────────────────────────────────────────
+    section("WAN Status")
+    s = conn.status()
+    row("state", s.state)
+    row("media / type", f"{s.media} / {s.type}")
+    row("IPv4", s.ipv4 or "—")
+    row("IPv6", s.ipv6 or "—")
+    if s.ipv4_port_range:
+        row("IPv4 port range", f"{s.ipv4_port_range[0]}–{s.ipv4_port_range[1]}")
+    row("bandwidth up", fmt_bps(s.bandwidth_up))
+    row("bandwidth down", fmt_bps(s.bandwidth_down))
+    row("rate up", fmt_bps(s.rate_up))
+    row("rate down", fmt_bps(s.rate_down))
+    row("bytes up (session)", fmt_bytes(s.bytes_up))
+    row("bytes down (session)", fmt_bytes(s.bytes_down))
+
+    # ── Configuration ──────────────────────────────────────────────────────────
+    section("Configuration")
+    c = conn.config()
+    row("ping (external)", c.ping)
+    row("remote access", c.remote_access)
+    row("remote access port", c.remote_access_port)
+    row("remote access IP", c.remote_access_ip or "—")
+    row("api remote access", c.api_remote_access)
+    row("wol", c.wol)
+    row("adblock", c.adblock)
+    row("sip alg", c.sip_alg)
+    row("allow token request", c.allow_token_request)
+
+    # ── IPv6 configuration ─────────────────────────────────────────────────────
+    section("IPv6 Configuration")
+    v6 = conn.ipv6_config()
+    row("ipv6 enabled", v6.ipv6_enabled)
+    row("ipv6 firewall", v6.ipv6_firewall)
+    row("ipv6 prefix firewall", v6.ipv6_prefix_firewall)
+    row("link-local", v6.ipv6ll or "—")
+    active = [d for d in v6.delegations if d.prefix]
+    if active:
+        row("delegations", "")
+        for deleg in active:
+            hop = f"  → {deleg.next_hop}" if deleg.next_hop else ""
+            print(f"    {deleg.prefix}{hop}")
+
+    # ── FTTH status ────────────────────────────────────────────────────────────
+    section("FTTH Status [unstable]")
+    try:
+        f = conn.ftth()
+        row("SFP present", f.sfp_present)
+        row("SFP alim ok", f.sfp_alim_ok)
+        row("SFP has signal", f.sfp_has_signal)
+        row("link", f.link)
+        row("SFP model", f.sfp_model or "—")
+        row("SFP vendor", f.sfp_vendor or "—")
+        row("SFP serial", f.sfp_serial or "—")
+        if f.sfp_has_power_report:
+            row("SFP pwr tx", f"{f.sfp_pwr_tx / 100:.2f} dBm")
+            row("SFP pwr rx", f"{f.sfp_pwr_rx / 100:.2f} dBm")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── xDSL status ────────────────────────────────────────────────────────────
+    section("xDSL Status [unstable]")
+    try:
+        x = conn.xdsl()
+        row("status", x.status.status)
+        row("protocol", x.status.protocol)
+        row("modulation", x.status.modulation)
+        row("uptime", f"{x.status.uptime} s")
+        print(f"  {'':28} {'down':>10}  {'up':>10}")
+        row("rate (ATM)", f"{x.down.rate:>10} Kbps  {x.up.rate:>10} Kbps")
+        row("max rate (ATM)", f"{x.down.maxrate:>10} Kbps  {x.up.maxrate:>10} Kbps")
+        row("SNR", f"{x.down.snr:>10} dB    {x.up.snr:>10} dB")
+        row("attenuation", f"{x.down.attn:>10} dB    {x.up.attn:>10} dB")
+        row("FEC", f"{x.down.fec:>10}       {x.up.fec:>10}")
+        row("CRC", f"{x.down.crc:>10}       {x.up.crc:>10}")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── LTE backup 4G ──────────────────────────────────────────────────────────
+    for lte_id in ("backup", "aggregation"):
+        section(f"LTE {lte_id} [unstable]")
+        try:
+            lte = conn.lte(lte_id)
+            row("enabled", lte.enabled)
+            row("state", lte.state)
+            row("fsm state", lte.fsm_state)
+            row("SIM present", lte.sim.present)
+            if lte.sim.present:
+                row("SIM ICCID", lte.sim.iccid or "—")
+                row("SIM PIN locked", lte.sim.pin_locked)
+            row("radio associated", lte.radio.associated)
+            if lte.radio.associated:
+                row("radio PLMN", lte.radio.plmn)
+                row("radio signal level", lte.radio.signal_level)
+                row("radio GCID", lte.radio.gcid or "—")
+            row("network PDN up", lte.network.pdn_up)
+            if lte.network.has_ipv4:
+                row("network IPv4", lte.network.ipv4)
+            if lte.network.has_ipv6:
+                row("network IPv6", lte.network.ipv6)
+            if lte.radio.bands:
+                row("bands", "")
+                for b in lte.radio.bands:
+                    print(f"    band {b.band:<4} enabled={b.enabled}  "
+                          f"RSRP={b.rsrp} dBm  RSRQ={b.rsrq} dB  RSSI={b.rssi} dBm")
+        except FreeboxError as e:
+            print(f"  (unavailable: {e})")
+
+    # ── xDSL/LTE aggregation tunnel ────────────────────────────────────────────
+    section("LTE aggregation tunnel [unstable]")
+    try:
+        agg = conn.aggregation()
+        row("enabled", agg.enabled)
+        for name, td in (("lte", agg.tunnel.lte), ("xdsl", agg.tunnel.xdsl)):
+            row(f"tunnel {name} connected", td.connected)
+            if td.connected:
+                row(f"tunnel {name} last error", td.last_error or "—")
+                row(f"tunnel {name} rx max rate", fmt_bps(td.rx_max_rate))
+                row(f"tunnel {name} tx max rate", fmt_bps(td.tx_max_rate))
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()

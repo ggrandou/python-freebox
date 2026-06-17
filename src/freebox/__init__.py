@@ -1,5 +1,26 @@
 from freebox.auth import Auth, AuthorizationStatus
 from freebox.client import Freebox
+from freebox.connection import (
+    Connection,
+    ConnectionConfiguration,
+    ConnectionIpv6Configuration,
+    ConnectionIpv6Delegation,
+    ConnectionStatus,
+    DDNSConfig,
+    DDNSStatus,
+    FtthStatus,
+    LteAggregation,
+    LteConfiguration,
+    LteNetwork,
+    LteRadio,
+    LteRadioBand,
+    LteSim,
+    LteTunnel,
+    LteTunnelDetails,
+    XdslInfos,
+    XdslStats,
+    XdslStatus,
+)
 from freebox.discovery import DiscoveryInfo, discover, discover_http, discover_mdns, discover_remote_port
 from freebox.events import EventStream, Notification
 from freebox.exceptions import (
@@ -26,6 +47,26 @@ __all__ = [
     "discover_http",
     "discover_mdns",
     "discover_remote_port",
+    # Connection
+    "Connection",
+    "ConnectionStatus",
+    "ConnectionConfiguration",
+    "ConnectionIpv6Configuration",
+    "ConnectionIpv6Delegation",
+    "DDNSStatus",
+    "DDNSConfig",
+    "FtthStatus",
+    "LteAggregation",
+    "LteConfiguration",
+    "LteNetwork",
+    "LteRadio",
+    "LteRadioBand",
+    "LteSim",
+    "LteTunnel",
+    "LteTunnelDetails",
+    "XdslInfos",
+    "XdslStatus",
+    "XdslStats",
     # Events
     "EventStream",
     "Notification",
