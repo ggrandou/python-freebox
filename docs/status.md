@@ -2,6 +2,16 @@
 
 Legend: ✓ = done · — = not done yet
 
+## Discovery
+
+| Mechanism       | Function                  | Tested   |
+| --------------- | ------------------------- | :------: |
+| mDNS            | `discover_mdns()`         | ✓        |
+| HTTPS (`GET /api_version`) | `discover_http()` | ✓        |
+| HTTP (`GET /api_version`)  | `discover_http()` | ✓        |
+| DNS SRV         | `discover_remote_port()`  | ✓        |
+| Full chain      | `discover()`              | ✓        |
+
 ## Authentication
 
 | Method   | Route                         | Function                   | Tested   |
@@ -16,13 +26,13 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route                                 | Function                                | Tested   |
 | -------- | ------------------------------------- | --------------------------------------- | :------: |
-| GET      | `/connection/`                        | fb.connection.status()                  | —        |
-| GET      | `/connection/config/`                 | fb.connection.config()                  | —        |
+| GET      | `/connection/`                        | fb.connection.status()                  | ✓        |
+| GET      | `/connection/config/`                 | fb.connection.config()                  | ✓        |
 | PUT      | `/connection/config/`                 | fb.connection.set_config()              | —        |
-| GET      | `/connection/ipv6/config/`            | fb.connection.ipv6_config()             | —        |
+| GET      | `/connection/ipv6/config/`            | fb.connection.ipv6_config()             | ✓        |
 | PUT      | `/connection/ipv6/config/`            | fb.connection.set_ipv6_config()         | —        |
 | GET      | `/connection/xdsl/`                   | fb.connection.xdsl()                    | —        |
-| GET      | `/connection/ftth/`                   | fb.connection.ftth()                    | —        |
+| GET      | `/connection/ftth/`                   | fb.connection.ftth()                    | ✓        |
 | GET      | `/connection/lte/{id}`                | fb.connection.lte(id)                   | —        |
 | GET      | `/connection/aggregation`             | fb.connection.aggregation()             | —        |
 | PUT      | `/connection/aggregation`             | fb.connection.set_aggregation()         | —        |
@@ -34,14 +44,14 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route                                | Function                           | Tested   |
 | -------- | ------------------------------------ | ---------------------------------- | :------: |
-| GET      | `/lan/config/`                       | fb.lan.config()                    | —        |
+| GET      | `/lan/config/`                       | fb.lan.config()                    | ✓        |
 | PUT      | `/lan/config/`                       | fb.lan.set_config()                | —        |
-| GET      | `/lan/routes`                        | fb.lan.routes()                    | —        |
+| GET      | `/lan/routes`                        | fb.lan.routes()                    | ✓        |
 | PUT      | `/lan/routes/`                       | fb.lan.set_routes(routes)          | —        |
-| GET      | `/lan/browser/interfaces/`           | fb.lan.interfaces()                | —        |
-| GET      | `/lan/browser/types/`                | fb.lan.host_types()                | —        |
-| GET      | `/lan/browser/{interface}/`          | fb.lan.hosts(interface)            | —        |
-| GET      | `/lan/browser/{interface}/{hostid}/` | fb.lan.host(interface, hostid)     | —        |
+| GET      | `/lan/browser/interfaces/`           | fb.lan.interfaces()                | ✓        |
+| GET      | `/lan/browser/types/`                | fb.lan.host_types()                | ✓        |
+| GET      | `/lan/browser/{interface}/`          | fb.lan.hosts(interface)            | ✓        |
+| GET      | `/lan/browser/{interface}/{hostid}/` | fb.lan.host(interface, hostid)     | ✓        |
 | PUT      | `/lan/browser/{interface}/{hostid}/` | fb.lan.set_host(interface, hostid) | —        |
 | POST     | `/lan/wol/{interface}/`              | fb.lan.wake_on_lan(interface, mac) | —        |
 
@@ -49,7 +59,7 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route       | Function          | Tested   |
 | -------- | ----------- | ----------------- | :------: |
-| WS       | `/ws/event` | fb.events(events) | —        |
+| WS       | `/ws/event` | fb.events(events) | ✓        |
 
 ## AirMedia
 
@@ -96,10 +106,10 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route                     | Function                               | Tested   |
 | -------- | ------------------------- | -------------------------------------- | :------: |
-| GET      | `/dhcp/config/`           | fb.dhcp.config()                       | —        |
+| GET      | `/dhcp/config/`           | fb.dhcp.config()                       | ✓        |
 | PUT      | `/dhcp/config/`           | fb.dhcp.set_config()                   | —        |
-| GET      | `/dhcp/dynamic_lease/`    | fb.dhcp.dynamic_leases()               | —        |
-| GET      | `/dhcp/static_lease/`     | fb.dhcp.static_leases()                | —        |
+| GET      | `/dhcp/dynamic_lease/`    | fb.dhcp.dynamic_leases()               | ✓        |
+| GET      | `/dhcp/static_lease/`     | fb.dhcp.static_leases()                | ✓        |
 | GET      | `/dhcp/static_lease/{id}` | fb.dhcp.static_lease(id)               | —        |
 | POST     | `/dhcp/static_lease/`     | fb.dhcp.add_static_lease(mac, ip)      | —        |
 | PUT      | `/dhcp/static_lease/{id}` | fb.dhcp.set_static_lease(id)           | —        |

@@ -101,6 +101,7 @@ def main() -> None:
         print(f"  (unavailable: {e})")
 
     # ── Hosts per interface ────────────────────────────────────────────────────
+    first_host_fetched = False
     for iface in ifaces:
         section(f"Hosts on '{iface.name}'")
         try:
@@ -108,6 +109,10 @@ def main() -> None:
             if not hosts:
                 print("  (no hosts)")
                 continue
+            if not first_host_fetched:
+                h0 = lan.host(iface.name, hosts[0].id)
+                assert h0.id == hosts[0].id
+                first_host_fetched = True
             for h in hosts:
                 status = "●" if h.reachable else "○"
                 active = " active" if h.active else ""
