@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+"""Test all Freebox discovery methods.
+
+Usage:
+    tools/test_discovery [freebox_host]
+"""
+from __future__ import annotations
+
+import sys
+import time
+
+from freebox.discovery import (
+    DiscoveryInfo,
+    discover,
+    discover_http,
+    discover_mdns,
+    discover_remote_port,
+)
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+MDNS_TIMEOUT = 5.0
+
+
+def print_info(info: DiscoveryInfo) -> None:
+    print(f"    device       : {info.device_name} ({info.box_model_name})")
+    print(f"    model        : {info.box_model}")
+    print(f"    uid          : {info.uid}")
+    print(f"    api version  : {info.api_version}")
+    print(f"    local url    : {info.local_url}")
+    print(f"    remote url   : {info.remote_url}")
+    print(f"    https        : {info.https_available}")
+
+
+def test(label: str):
+    """Context manager-style decorator for a named test block."""
+    class _Block:
+        def __enter__(self):
+            print(f"\n[{label}]")
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            if exc_type:
+                print(f"  FAIL  {exc_val}")
+                return True  # suppress exception
+    return _Block()
+
+
+def main() -> None:
+    print(f"Freebox discovery test  (host={HOST})")
+
+    with test("mDNS"):
+        t0 = time.monotonic()
+        info = discover_mdns(timeout=MDNS_TIMEOUT)
+        elapsed = time.monotonic() - t0
+        if info:
+            print(f"  OK    found in {elapsed:.2f}s")
+            print_info(info)
+        else:
+            print(f"  SKIP  no Freebox found via mDNS within {MDNS_TIMEOUT:.0f}s"
+                  " (zeroconf not installed or not on local network)")
+
+    with test("HTTPS discovery"):
+        info = discover_http(HOST)
+        print("  OK")
+        print_info(info)
+
+    with test("HTTP discovery"):
+        import httpx
+        resp = httpx.get(f"http://{HOST}/api_version", timeout=5.0)
+        resp.raise_for_status()
+        info = DiscoveryInfo._from_dict(resp.json())
+        print("  OK")
+        print_info(info)
+
+    with test("Remote port (DNS SRV)"):
+        info = discover_http(HOST)
+        port = discover_remote_port(info.api_domain)
+        if port is not None:
+            match = "matches" if port == info.https_port else f"DIFFERS from discovery ({info.https_port})"
+            print(f"  OK    port={port}  ({match})")
+        else:
+            print("  SKIP  dnspython not installed or SRV record absent")
+
+    with test("Full discover() chain"):
+        t0 = time.monotonic()
+        info = discover(timeout=2.0)
+        elapsed = time.monotonic() - t0
+        print(f"  OK    resolved in {elapsed:.2f}s")
+        print_info(info)
+
+    print()
+
+
+if __name__ == "__main__":
+    main()

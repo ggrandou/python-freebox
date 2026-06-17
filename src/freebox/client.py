@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-import json
 import time
 from pathlib import Path
 from typing import Any
 
 import httpx
 
+from freebox.discovery import DiscoveryInfo, discover_http, ssl_context
 from freebox.exceptions import (
     AuthenticationError,
     FreeboxError,
@@ -32,7 +32,7 @@ class Freebox:
                      app_version="1.0", device_name="my-pc",
                      token_file=Path("~/.freebox_token"))
         fb.open()          # registers app if needed, opens a session
-        data = fb.get("connection/status/")
+        data = fb.get("connection/")
         fb.close()
     """
 
@@ -52,19 +52,19 @@ class Freebox:
         self._app_version = app_version
         self._device_name = device_name
         self._token_file = token_file
+        self._host = host
 
         self._app_token: str | None = None
         self._session_token: str | None = None
-        self._api_version: int | None = None
-        self.discovery: dict[str, Any] = {}
+        self.discovery: DiscoveryInfo | None = None
 
         base = f"https://{host}" + (f":{port}" if port else "")
-        self._http = httpx.Client(base_url=base, verify=False)  # noqa: S501
+        self._http = httpx.Client(base_url=base, verify=ssl_context())
 
     # ── Public API ─────────────────────────────────────────────────────────────
 
     def open(self) -> None:
-        """Register the app (if needed) and open an authenticated session."""
+        """Discover the Freebox, register the app if needed, and open a session."""
         self._discover()
         self._load_token()
         if not self._app_token:
@@ -74,7 +74,7 @@ class Freebox:
     def close(self) -> None:
         """Close the current session."""
         if self._session_token:
-            self._post("login/logout/", authenticated=True)
+            self._request("POST", "login/logout/", authenticated=True)
             self._session_token = None
 
     def get(self, path: str, **kwargs: Any) -> Any:
@@ -91,6 +91,10 @@ class Freebox:
 
     # ── Internal ───────────────────────────────────────────────────────────────
 
+    @property
+    def _api_version(self) -> int | None:
+        return self.discovery.api_major_version if self.discovery else None
+
     def _url(self, path: str) -> str:
         return _API_BASE.format(version=self._api_version) + path.lstrip("/")
 
@@ -104,12 +108,6 @@ class Freebox:
         if not body.get("success"):
             self._raise(body)
         return body.get("result")
-
-    def _post(self, path: str, **kwargs: Any) -> Any:
-        return self._request("POST", path, **kwargs)
-
-    def _get(self, path: str, **kwargs: Any) -> Any:
-        return self._request("GET", path, **kwargs)
 
     def _raise(self, body: dict) -> None:
         code = body.get("error_code", "unknown")
@@ -125,11 +123,7 @@ class Freebox:
     # ── Discovery ──────────────────────────────────────────────────────────────
 
     def _discover(self) -> None:
-        resp = self._http.get("/api_version")
-        resp.raise_for_status()
-        info = resp.json()
-        self.discovery = info
-        self._api_version = int(info["api_version"].split(".")[0])
+        self.discovery = discover_http(self._host)
 
     # ── App token ──────────────────────────────────────────────────────────────
 

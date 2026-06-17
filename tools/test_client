@@ -36,11 +36,11 @@ def main() -> None:
 
     fb.open()
     d = fb.discovery
-    print(f"  device      : {d.get('device_name')}  ({d.get('box_model_name')})")
-    print(f"  uid         : {d.get('uid')}")
-    print(f"  API version : {d.get('api_version')}")
-    print(f"  remote url  : https://{d.get('api_domain')}:{d.get('https_port')}{d.get('api_base_url')}")
-    print(f"  https       : {d.get('https_available')}")
+    print(f"  device      : {d.device_name}  ({d.box_model_name})")
+    print(f"  uid         : {d.uid}")
+    print(f"  API version : {d.api_version}")
+    print(f"  local url   : {d.local_url}")
+    print(f"  remote url  : {d.remote_url}")
     print()
 
     status = fb.get("connection/")

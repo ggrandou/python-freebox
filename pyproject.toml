@@ -13,9 +13,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
+mdns = ["zeroconf>=0.131"]
+dns  = ["dnspython>=2.6"]
+dev  = [
     "pytest>=8",
     "pytest-httpx>=0.30",
+    "zeroconf>=0.131",
+    "dnspython>=2.6",
 ]
 
 [tool.hatch.build.targets.wheel]
