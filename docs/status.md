@@ -1,0 +1,547 @@
+# Freebox API — Implementation Status
+
+Legend: ✓ = done · — = not done yet
+
+## Authentication
+
+| Method   | Route                         | Function                   | Tested   |
+| -------- | ----------------------------- | -------------------------- | :------: |
+| GET      | `/login/`                     | auth.open_session()        | —        |
+| POST     | `/login/authorize/`           | auth.register()            | —        |
+| GET      | `/login/authorize/{track_id}` | auth.register()  # polling | —        |
+| POST     | `/login/session/`             | auth.open_session()        | —        |
+| DELETE   | `/login/session/`             | auth.close_session()       | —        |
+
+## Connection
+
+| Method   | Route                                 | Function                                | Tested   |
+| -------- | ------------------------------------- | --------------------------------------- | :------: |
+| GET      | `/connection/`                        | fb.connection.status()                  | —        |
+| GET      | `/connection/config/`                 | fb.connection.config()                  | —        |
+| PUT      | `/connection/config/`                 | fb.connection.set_config()              | —        |
+| GET      | `/connection/ipv6/config/`            | fb.connection.ipv6_config()             | —        |
+| PUT      | `/connection/ipv6/config/`            | fb.connection.set_ipv6_config()         | —        |
+| GET      | `/connection/xdsl/`                   | fb.connection.xdsl()                    | —        |
+| GET      | `/connection/ftth/`                   | fb.connection.ftth()                    | —        |
+| GET      | `/connection/lte/{id}`                | fb.connection.lte(id)                   | —        |
+| GET      | `/connection/aggregation`             | fb.connection.aggregation()             | —        |
+| PUT      | `/connection/aggregation`             | fb.connection.set_aggregation()         | —        |
+| GET      | `/connection/ddns/{provider}/`        | fb.connection.ddns_config(provider)     | —        |
+| PUT      | `/connection/ddns/{provider}/`        | fb.connection.set_ddns_config(provider) | —        |
+| GET      | `/connection/ddns/{provider}/status/` | fb.connection.ddns_status(provider)     | —        |
+
+## LAN
+
+| Method   | Route                                | Function                           | Tested   |
+| -------- | ------------------------------------ | ---------------------------------- | :------: |
+| GET      | `/lan/config/`                       | fb.lan.config()                    | —        |
+| PUT      | `/lan/config/`                       | fb.lan.set_config()                | —        |
+| GET      | `/lan/routes`                        | fb.lan.routes()                    | —        |
+| PUT      | `/lan/routes/`                       | fb.lan.set_routes(routes)          | —        |
+| GET      | `/lan/browser/interfaces/`           | fb.lan.interfaces()                | —        |
+| GET      | `/lan/browser/types/`                | fb.lan.host_types()                | —        |
+| GET      | `/lan/browser/{interface}/`          | fb.lan.hosts(interface)            | —        |
+| GET      | `/lan/browser/{interface}/{hostid}/` | fb.lan.host(interface, hostid)     | —        |
+| PUT      | `/lan/browser/{interface}/{hostid}/` | fb.lan.set_host(interface, hostid) | —        |
+| POST     | `/lan/wol/{interface}/`              | fb.lan.wake_on_lan(interface, mac) | —        |
+
+## WebSocket Events
+
+| Method   | Route       | Function          | Tested   |
+| -------- | ----------- | ----------------- | :------: |
+| WS       | `/ws/event` | fb.events(events) | —        |
+
+## AirMedia
+
+| Method   | Route                                  | Function | Tested   |
+| -------- | -------------------------------------- | -------- | :------: |
+| GET      | `/airmedia/config/`                    | —        | —        |
+| PUT      | `/airmedia/config/`                    | —        | —        |
+| GET      | `/airmedia/receivers/`                 | —        | —        |
+| POST     | `/airmedia/receviers/{receiver_name}/` | —        | —        |
+
+## Call / Voicemail
+
+| Method   | Route                             | Function | Tested   |
+| -------- | --------------------------------- | -------- | :------: |
+| GET      | `/call/log/`                      | —        | —        |
+| GET      | `/call/log/{id}`                  | —        | —        |
+| PUT      | `/call/log/{id}`                  | —        | —        |
+| DELETE   | `/call/log/{id}`                  | —        | —        |
+| POST     | `/call/log/delete_all/`           | —        | —        |
+| POST     | `/call/log/mark_all_as_read/`     | —        | —        |
+| GET      | `/call/account`                   | —        | —        |
+| GET      | `/call/voicemail/`                | —        | —        |
+| GET      | `/call/voicemail/{id}`            | —        | —        |
+| PUT      | `/call/voicemail/{id}`            | —        | —        |
+| DELETE   | `/call/voicemail/{id}`            | —        | —        |
+| GET      | `/call/voicemail/{id}/audio_file` | —        | —        |
+
+## Contacts
+
+| Method | Route                                                    | Function | Tested |
+| ------ | -------------------------------------------------------- | -------- | :----: |
+| GET    | `/contact/`                                              | —        | —      |
+| GET    | `/contact/{id}`                                          | —        | —      |
+| POST   | `/contact/`                                              | —        | —      |
+| PUT    | `/contact/{id}`                                          | —        | —      |
+| DELETE | `/contact/{id}`                                          | —        | —      |
+| GET    | `/contact/{contact_id}/[numbers,addresses,urls,emails]/` | —        | —      |
+| GET    | `/[number,address,url,email]/{id}`                       | —        | —      |
+| POST   | `/[number,address,url,email]/`                           | —        | —      |
+| PUT    | `/[number,address,url,email]/{id}`                       | —        | —      |
+| DELETE | `/[number,address,url,email]/{id}`                       | —        | —      |
+
+## DHCP
+
+| Method   | Route                     | Function | Tested   |
+| -------- | ------------------------- | -------- | :------: |
+| GET      | `/dhcp/config/`           | —        | —        |
+| PUT      | `/dhcp/config/`           | —        | —        |
+| GET      | `/dhcp/dynamic_lease/`    | —        | —        |
+| GET      | `/dhcp/static_lease/`     | —        | —        |
+| GET      | `/dhcp/static_lease/{id}` | —        | —        |
+| POST     | `/dhcp/static_lease/`     | —        | —        |
+| PUT      | `/dhcp/static_lease/{id}` | —        | —        |
+| DELETE   | `/dhcp/static_lease/{id}` | —        | —        |
+
+## DHCPv6
+
+| Method   | Route             | Function | Tested   |
+| -------- | ----------------- | -------- | :------: |
+| GET      | `/dhcpv6/config/` | —        | —        |
+| PUT      | `/dhcpv6/config/` | —        | —        |
+
+## Downloads
+
+| Method   | Route                                                 | Function | Tested   |
+| -------- | ----------------------------------------------------- | -------- | :------: |
+| GET      | `/downloads/`                                         | —        | —        |
+| GET      | `/downloads/{id}`                                     | —        | —        |
+| PUT      | `/downloads/{id}`                                     | —        | —        |
+| DELETE   | `/downloads/{id}`                                     | —        | —        |
+| DELETE   | `/downloads/{id}/erase`                               | —        | —        |
+| POST     | `/downloads/add`                                      | —        | —        |
+| GET      | `/downloads/config/`                                  | —        | —        |
+| PUT      | `/downloads/config/`                                  | —        | —        |
+| PUT      | `/downloads/throttling`                               | —        | —        |
+| GET      | `/downloads/stats`                                    | —        | —        |
+| GET      | `/downloads/{id}/log`                                 | —        | —        |
+| GET      | `/downloads/{task_id}/files`                          | —        | —        |
+| PUT      | `/downloads/{task_id}/files/{file_id}`                | —        | —        |
+| GET      | `/downloads/{task_id}/blacklist`                      | —        | —        |
+| POST     | `/downloads/blacklist`                                | —        | —        |
+| DELETE   | `/downloads/{task_id}/blacklist/empty`                | —        | —        |
+| GET      | `/downloads/{task_id}/trackers`                       | —        | —        |
+| POST     | `/downloads/{task_id}/trackers`                       | —        | —        |
+| PUT      | `/downloads/{task_id}/trackers/{announce}`            | —        | —        |
+| DELETE   | `/downloads/{task_id}/trackers/{announce}`            | —        | —        |
+| GET      | `/downloads/{task_id}/peers`                          | —        | —        |
+| GET      | `/downloads/{task_id}/pieces`                         | —        | —        |
+| GET      | `/downloads/feeds/`                                   | —        | —        |
+| GET      | `/downloads/feeds/{id}`                               | —        | —        |
+| POST     | `/downloads/feeds/`                                   | —        | —        |
+| PUT      | `/downloads/feeds/{id}`                               | —        | —        |
+| DELETE   | `/downloads/feeds/{id}`                               | —        | —        |
+| POST     | `/downloads/feeds/fetch`                              | —        | —        |
+| POST     | `/downloads/feeds/{id}/fetch`                         | —        | —        |
+| GET      | `/downloads/feeds/{feed_id}/items/`                   | —        | —        |
+| POST     | `/downloads/feeds/{feed_id}/items/{item_id}/download` | —        | —        |
+| PUT      | `/downloads/feeds/{feed_id}/items/{item_id}`          | —        | —        |
+| POST     | `/downloads/feeds/{feed_id}/items/mark_all_as_read`   | —        | —        |
+
+## File System
+
+| Method   | Route                 | Function | Tested   |
+| -------- | --------------------- | -------- | :------: |
+| GET      | `/fs/ls/{path}`       | —        | —        |
+| GET      | `/fs/info/{path}`     | —        | —        |
+| POST     | `/fs/info`            | —        | —        |
+| GET      | `/fs/tasks/`          | —        | —        |
+| GET      | `/fs/tasks/{id}`      | —        | —        |
+| GET      | `/fs/tasks/{id}/hash` | —        | —        |
+| PUT      | `/fs/tasks/{id}`      | —        | —        |
+| DELETE   | `/fs/tasks/{id}`      | —        | —        |
+| POST     | `/fs/mkdir/`          | —        | —        |
+| POST     | `/fs/mv/`             | —        | —        |
+| POST     | `/fs/cp/`             | —        | —        |
+| POST     | `/fs/rm/`             | —        | —        |
+| POST     | `/fs/rename/`         | —        | —        |
+| POST     | `/fs/hash/`           | —        | —        |
+| POST     | `/fs/extract/`        | —        | —        |
+| POST     | `/fs/archive/`        | —        | —        |
+| POST     | `/fs/repair/`         | —        | —        |
+| POST     | `/fs/cat/`            | —        | —        |
+| GET      | `/dl/{path}`          | —        | —        |
+
+## File Upload (WebSocket)
+
+| Method   | Route                 | Function | Tested   |
+| -------- | --------------------- | -------- | :------: |
+| WS       | `/ws/upload`          | —        | —        |
+| GET      | `/upload/`            | —        | —        |
+| GET      | `/upload/{id}`        | —        | —        |
+| DELETE   | `/upload/{id}`        | —        | —        |
+| DELETE   | `/upload/{id}/cancel` | —        | —        |
+
+## Firewall
+
+| Method   | Route                    | Function | Tested   |
+| -------- | ------------------------ | -------- | :------: |
+| GET      | `/fw/dmz/`               | —        | —        |
+| PUT      | `/fw/dmz/`               | —        | —        |
+| GET      | `/fw/incoming/`          | —        | —        |
+| GET      | `/fw/incoming/{port_id}` | —        | —        |
+| PUT      | `/fw/incoming/{port_id}` | —        | —        |
+| GET      | `/fw/redir/`             | —        | —        |
+| GET      | `/fw/redir/{redir_id}`   | —        | —        |
+| POST     | `/fw/redir/`             | —        | —        |
+| PUT      | `/fw/redir/{redir_id}`   | —        | —        |
+| DELETE   | `/fw/redir/{redir_id}`   | —        | —        |
+
+## Freeplug
+
+| Method   | Route                   | Function | Tested   |
+| -------- | ----------------------- | -------- | :------: |
+| GET      | `/freeplug/`            | —        | —        |
+| GET      | `/freeplug/{id}/`       | —        | —        |
+| POST     | `/freeplug/{id}/reset/` | —        | —        |
+
+## FTP
+
+| Method   | Route          | Function | Tested   |
+| -------- | -------------- | -------- | :------: |
+| GET      | `/ftp/config/` | —        | —        |
+| PUT      | `/ftp/config/` | —        | —        |
+
+## Home Automation
+
+| Method   | Route                                     | Function | Tested   |
+| -------- | ----------------------------------------- | -------- | :------: |
+| GET      | `/home/nodes`                             | —        | —        |
+| GET      | `/home/nodes/{id}`                        | —        | —        |
+| PUT      | `/home/nodes/{id}`                        | —        | —        |
+| DELETE   | `/home/nodes/{id}`                        | —        | —        |
+| GET      | `/home/endpoints/{node_id}/{endpoint_id}` | —        | —        |
+| PUT      | `/home/endpoints/{node_id}/{endpoint_id}` | —        | —        |
+| GET      | `/home/adapters`                          | —        | —        |
+| GET      | `/home/adapters/{id}`                     | —        | —        |
+| PUT      | `/home/adapters/{id}`                     | —        | —        |
+| GET      | `/home/pairing/{adapter_id}`              | —        | —        |
+| POST     | `/home/pairing/{adapter_id}`              | —        | —        |
+| GET      | `/home/tileset/all`                       | —        | —        |
+| GET      | `/home/tileset/{node_id}`                 | —        | —        |
+
+## Language
+
+| Method   | Route    | Function | Tested   |
+| -------- | -------- | -------- | :------: |
+| GET      | `/lang/` | —        | —        |
+| POST     | `/lang/` | —        | —        |
+
+## LCD
+
+| Method   | Route          | Function | Tested   |
+| -------- | -------------- | -------- | :------: |
+| GET      | `/lcd/config/` | —        | —        |
+| PUT      | `/lcd/config/` | —        | —        |
+
+## LED Strip
+
+| Method   | Route                | Function | Tested   |
+| -------- | -------------------- | -------- | :------: |
+| GET      | `/ledstrip/status`   | —        | —        |
+| PUT      | `/ledstrip/planning` | —        | —        |
+
+## Network Control (Parental Filter)
+
+| Method   | Route                                           | Function | Tested   |
+| -------- | ----------------------------------------------- | -------- | :------: |
+| GET      | `/network_control`                              | —        | —        |
+| GET      | `/network_control/{profile_id}`                 | —        | —        |
+| GET      | `/network_control/{profile_id}/rules`           | —        | —        |
+| GET      | `/network_control/{profile_id}/rules/{rule_id}` | —        | —        |
+| POST     | `/network_control/{profile_id}/rules/`          | —        | —        |
+| PUT      | `/network_control/{profile_id}`                 | —        | —        |
+| PUT      | `/network_control/{id}/rules/{rule_id}`         | —        | —        |
+| DELETE   | `/network_control/{id}/rules/{rule_id}`         | —        | —        |
+| GET      | `/network_control/migrate`                      | —        | —        |
+| POST     | `/network_control/migrate`                      | —        | —        |
+
+## Network Share (AFP / Samba)
+
+| Method   | Route              | Function | Tested   |
+| -------- | ------------------ | -------- | :------: |
+| GET      | `/netshare/afp/`   | —        | —        |
+| PUT      | `/netshare/afp/`   | —        | —        |
+| GET      | `/netshare/samba/` | —        | —        |
+| PUT      | `/netshare/samba/` | —        | —        |
+
+## Notifications
+
+| Method   | Route                 | Function | Tested   |
+| -------- | --------------------- | -------- | :------: |
+| GET      | `/notif/targets`      | —        | —        |
+| GET      | `/notif/targets/{id}` | —        | —        |
+| POST     | `/notif/targets/`     | —        | —        |
+| PUT      | `/notif/targets/{id}` | —        | —        |
+| DELETE   | `/notif/targets/{id}` | —        | —        |
+
+## Player
+
+| Method   | Route                                    | Function | Tested   |
+| -------- | ---------------------------------------- | -------- | :------: |
+| GET      | `/player`                                | —        | —        |
+| GET      | `/player/{id}/api/v6/status/`            | —        | —        |
+| GET      | `/player/{id}/api/v6/control/volume/`    | —        | —        |
+| PUT      | `/player/{id}/api/v6/control/volume/`    | —        | —        |
+| POST     | `/player/{id}/api/v6/control/open`       | —        | —        |
+| POST     | `/player/{id}/api/v6/control/mediactrl/` | —        | —        |
+
+## Profile Management
+
+| Method   | Route           | Function | Tested   |
+| -------- | --------------- | -------- | :------: |
+| GET      | `/profile`      | —        | —        |
+| GET      | `/profile/{id}` | —        | —        |
+| POST     | `/profile/`     | —        | —        |
+| PUT      | `/profile/3`    | —        | —        |
+| DELETE   | `/profile/{id}` | —        | —        |
+
+## PVR (TV Recording)
+
+| Method   | Route                  | Function | Tested   |
+| -------- | ---------------------- | -------- | :------: |
+| GET      | `/pvr/config/`         | —        | —        |
+| PUT      | `/pvr/config/`         | —        | —        |
+| GET      | `/pvr/programmed/`     | —        | —        |
+| GET      | `/pvr/programmed/{id}` | —        | —        |
+| POST     | `/pvr/programmed/`     | —        | —        |
+| PUT      | `/pvr/programmed/{id}` | —        | —        |
+| DELETE   | `/pvr/programmed/{id}` | —        | —        |
+| GET      | `/pvr/finished/`       | —        | —        |
+| GET      | `/pvr/finished/{id}`   | —        | —        |
+| PUT      | `/pvr/finished/{id}`   | —        | —        |
+| DELETE   | `/pvr/finished/{id}`   | —        | —        |
+| GET      | `/pvr/media/`          | —        | —        |
+| GET      | `/pvr/quota/`          | —        | —        |
+| PUT      | `/pvr/quota/`          | —        | —        |
+
+## RAID
+
+| Method   | Route                                  | Function | Tested   |
+| -------- | -------------------------------------- | -------- | :------: |
+| GET      | `/storage/raid/`                       | —        | —        |
+| GET      | `/storage/raid/{id}`                   | —        | —        |
+| POST     | `/storage/raid/`                       | —        | —        |
+| PUT      | `/storage/raid/{id}`                   | —        | —        |
+| DELETE   | `/storage/raid/{id}`                   | —        | —        |
+| PUT      | `/storage/raid/{id}/members`           | —        | —        |
+| POST     | `/storage/raid/{id}/members/addspares` | —        | —        |
+| DELETE   | `/storage/raid/{id}/members/faulty`    | —        | —        |
+| POST     | `/storage/raid/{id}/forcestart`        | —        | —        |
+
+## RRD Stats
+
+| Method   | Route   | Function | Tested   |
+| -------- | ------- | -------- | :------: |
+| GET      | `/rrd/` | —        | —        |
+| POST     | `/rrd/` | —        | —        |
+
+## SFP
+
+| Method   | Route         | Function | Tested   |
+| -------- | ------------- | -------- | :------: |
+| GET      | `/sfp/status` | —        | —        |
+| PUT      | `/sfp/config` | —        | —        |
+
+## Share Links
+
+| Method   | Route                 | Function | Tested   |
+| -------- | --------------------- | -------- | :------: |
+| GET      | `/share_link/`        | —        | —        |
+| GET      | `/share_link/{token}` | —        | —        |
+| POST     | `/share_link/`        | —        | —        |
+| DELETE   | `/share_link/{token}` | —        | —        |
+
+## Standby
+
+| Method   | Route             | Function | Tested   |
+| -------- | ----------------- | -------- | :------: |
+| GET      | `/standby/status` | —        | —        |
+| PUT      | `/standby/config` | —        | —        |
+
+## Storage
+
+| Method   | Route                              | Function | Tested   |
+| -------- | ---------------------------------- | -------- | :------: |
+| GET      | `/storage/config/`                 | —        | —        |
+| PUT      | `/storage/config/`                 | —        | —        |
+| GET      | `/storage/disk/`                   | —        | —        |
+| GET      | `/storage/disk/{id}`               | —        | —        |
+| PUT      | `/storage/disk/{id}`               | —        | —        |
+| PUT      | `/storage/disk/{id}/format/`       | —        | —        |
+| GET      | `/storage/disk/{disk_id}/fsadvice` | —        | —        |
+| GET      | `/storage/partition/`              | —        | —        |
+| GET      | `/storage/partition/{id}`          | —        | —        |
+| PUT      | `/storage/partition/{id}`          | —        | —        |
+| PUT      | `/storage/partition/{id}/check/`   | —        | —        |
+
+## Switch
+
+| Method   | Route                     | Function | Tested   |
+| -------- | ------------------------- | -------- | :------: |
+| GET      | `/switch/status/`         | —        | —        |
+| GET      | `/switch/port/{id}`       | —        | —        |
+| PUT      | `/switch/port/{id}`       | —        | —        |
+| GET      | `/switch/port/{id}/stats` | —        | —        |
+
+## System
+
+| Method   | Route               | Function | Tested   |
+| -------- | ------------------- | -------- | :------: |
+| GET      | `/system/`          | —        | —        |
+| POST     | `/system/reboot/`   | —        | —        |
+| POST     | `/system/shutdown/` | —        | —        |
+
+## TFTP
+
+| Method   | Route           | Function | Tested   |
+| -------- | --------------- | -------- | :------: |
+| GET      | `/tftp/config/` | —        | —        |
+
+## Update
+
+| Method   | Route      | Function | Tested   |
+| -------- | ---------- | -------- | :------: |
+| GET      | `/update/` | —        | —        |
+
+## UPnP AV
+
+| Method   | Route             | Function | Tested   |
+| -------- | ----------------- | -------- | :------: |
+| GET      | `/upnpav/config/` | —        | —        |
+| PUT      | `/upnpav/config/` | —        | —        |
+
+## UPnP IGD
+
+| Method   | Route                 | Function | Tested   |
+| -------- | --------------------- | -------- | :------: |
+| GET      | `/upnpigd/config/`    | —        | —        |
+| PUT      | `/upnpigd/config/`    | —        | —        |
+| GET      | `/upnpigd/redir/`     | —        | —        |
+| DELETE   | `/upnpigd/redir/{id}` | —        | —        |
+
+## Virtual Machines
+
+| Method   | Route                  | Function | Tested   |
+| -------- | ---------------------- | -------- | :------: |
+| GET      | `/vm/`                 | —        | —        |
+| GET      | `/vm/{id}`             | —        | —        |
+| POST     | `/vm/`                 | —        | —        |
+| PUT      | `/vm/{id}`             | —        | —        |
+| DELETE   | `/vm/{id}`             | —        | —        |
+| GET      | `/vm/info/`            | —        | —        |
+| GET      | `/vm/distros/`         | —        | —        |
+| POST     | `/vm/{id}/start`       | —        | —        |
+| POST     | `/vm/{id}/stop`        | —        | —        |
+| POST     | `/vm/{id}/restart`     | —        | —        |
+| POST     | `/vm/{id}/powerbutton` | —        | —        |
+| GET      | `/vm/{id}/console`     | —        | —        |
+| GET      | `/vm/{id}/vnc`         | —        | —        |
+| GET      | `/vm/disk/task/{id}`   | —        | —        |
+| DELETE   | `/vm/disk/task/{id}`   | —        | —        |
+| POST     | `/vm/disk/create`      | —        | —        |
+| POST     | `/vm/disk/info`        | —        | —        |
+| POST     | `/vm/disk/resize`      | —        | —        |
+
+## VPN Client
+
+| Method   | Route                     | Function | Tested   |
+| -------- | ------------------------- | -------- | :------: |
+| GET      | `/vpn_client/config/`     | —        | —        |
+| GET      | `/vpn_client/config/{id}` | —        | —        |
+| POST     | `/vpn_client/config/`     | —        | —        |
+| PUT      | `/vpn_client/config/{id}` | —        | —        |
+| DELETE   | `/vpn_client/config/{id}` | —        | —        |
+| GET      | `/vpn_client/status`      | —        | —        |
+| GET      | `/vpn_client/log`         | —        | —        |
+
+## VPN Server
+
+| Method   | Route                                              | Function | Tested   |
+| -------- | -------------------------------------------------- | -------- | :------: |
+| GET      | `/vpn/`                                            | —        | —        |
+| GET      | `/vpn/{vpn_id}/config/`                            | —        | —        |
+| PUT      | `/vpn/openvpn_routed/config/`                      | —        | —        |
+| GET      | `/vpn/ip_pool/`                                    | —        | —        |
+| GET      | `/vpn/user/`                                       | —        | —        |
+| GET      | `/vpn/user/{login}`                                | —        | —        |
+| POST     | `/vpn/user/`                                       | —        | —        |
+| PUT      | `/vpn/user/{login}`                                | —        | —        |
+| DELETE   | `/vpn/user/{login}`                                | —        | —        |
+| GET      | `/vpn/connection/`                                 | —        | —        |
+| DELETE   | `/vpn/connection/{id}`                             | —        | —        |
+| GET      | `/vpn/download_config/{server_name}/{login}/{fmt}` | —        | —        |
+
+## Wi-Fi
+
+| Method   | Route                                              | Function | Tested   |
+| -------- | -------------------------------------------------- | -------- | :------: |
+| GET      | `/wifi/config/`                                    | —        | —        |
+| PUT      | `/wifi/config/`                                    | —        | —        |
+| GET      | `/wifi/default`                                    | —        | —        |
+| POST     | `/wifi/config/reset/`                              | —        | —        |
+| GET      | `/wifi/state/`                                     | —        | —        |
+| GET      | `/wifi/ap/`                                        | —        | —        |
+| GET      | `/wifi/ap/{id}`                                    | —        | —        |
+| PUT      | `/wifi/ap/{id}`                                    | —        | —        |
+| GET      | `/wifi/ap/{id}/default`                            | —        | —        |
+| GET      | `/wifi/ap/{id}/allowed_channel_comb`               | —        | —        |
+| GET      | `/wifi/ap/{id}/channel_usage/`                     | —        | —        |
+| GET      | `/wifi/ap/{id}/channel_survey_history/{timestamp}` | —        | —        |
+| GET      | `/wifi/ap/{id}/neighbors/`                         | —        | —        |
+| POST     | `/wifi/ap/{id}/neighbors/scan`                     | —        | —        |
+| GET      | `/wifi/ap/{id}/stations/`                          | —        | —        |
+| GET      | `/wifi/ap/{id}/stations/{mac}`                     | —        | —        |
+| POST     | `/wifi/ap/{id}/restart`                            | —        | —        |
+| GET      | `/wifi/ap/{id}/diag`                               | —        | —        |
+| POST     | `/wifi/ap/{id}/diag`                               | —        | —        |
+| GET      | `/wifi/bss/`                                       | —        | —        |
+| GET      | `/wifi/bss/{id}`                                   | —        | —        |
+| PUT      | `/wifi/bss/{id}`                                   | —        | —        |
+| GET      | `/wifi/bss/{id}/default`                           | —        | —        |
+| GET      | `/wifi/bss/{id}/diag`                              | —        | —        |
+| GET      | `/wifi/bss/{id}/mlo/config`                        | —        | —        |
+| GET      | `/wifi/bss/{id}/mlo/allowed_comb`                  | —        | —        |
+| GET      | `/wifi/mac_filter/`                                | —        | —        |
+| GET      | `/wifi/mac_filter/{filter_id}`                     | —        | —        |
+| POST     | `/wifi/mac_filter/`                                | —        | —        |
+| PUT      | `/wifi/mac_filter/{filter_id}`                     | —        | —        |
+| DELETE   | `/wifi/mac_filter/{filter_id}`                     | —        | —        |
+| GET      | `/wifi/planning/`                                  | —        | —        |
+| PUT      | `/wifi/planning/`                                  | —        | —        |
+| GET      | `/wifi/wps/config/`                                | —        | —        |
+| PUT      | `/wifi/wps/config/`                                | —        | —        |
+| GET      | `/wifi/wps/sessions/`                              | —        | —        |
+| POST     | `/wifi/wps/start/`                                 | —        | —        |
+| DELETE   | `/wifi/wps/sessions/`                              | —        | —        |
+| GET      | `/wifi/custom_key/`                                | —        | —        |
+| GET      | `/wifi/custom_key/{key_id}`                        | —        | —        |
+| POST     | `/wifi/custom_key/`                                | —        | —        |
+| DELETE   | `/wifi/custom_key/{key_id}`                        | —        | —        |
+| GET      | `/wifi/custom_keys/config/`                        | —        | —        |
+| PUT      | `/wifi/custom_keys/config/`                        | —        | —        |
+| GET      | `/wifi/steering/config/`                           | —        | —        |
+| PUT      | `/wifi/steering/config/`                           | —        | —        |
+| GET      | `/wifi/temp_disable`                               | —        | —        |
+| POST     | `/wifi/temp_disable`                               | —        | —        |
+| GET      | `/wifi/diag`                                       | —        | —        |
+| POST     | `/wifi/diag`                                       | —        | —        |
+
+## Camera
+
+| Method   | Route          | Function | Tested   |
+| -------- | -------------- | -------- | :------: |
+| GET      | `/camera/`     | —        | —        |
+| GET      | `/camera/{id}` | —        | —        |
