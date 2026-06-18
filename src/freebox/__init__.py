@@ -1,4 +1,5 @@
 from freebox.auth import Auth, AuthorizationStatus
+from freebox.call import Call, CallAccount, CallEntry, VoicemailEntry
 from freebox.client import Freebox
 from freebox.dhcp import (
     Dhcp,
@@ -131,6 +132,11 @@ __all__ = [
     # Auth
     "Auth",
     "AuthorizationStatus",
+    # Call / Voicemail
+    "Call",
+    "CallEntry",
+    "CallAccount",
+    "VoicemailEntry",
     # DHCP
     "Dhcp",
     "DhcpConfig",

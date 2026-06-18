@@ -74,18 +74,18 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route                             | Function | Tested   |
 | -------- | --------------------------------- | -------- | :------: |
-| GET      | `/call/log/`                      | —        | —        |
-| GET      | `/call/log/{id}`                  | —        | —        |
-| PUT      | `/call/log/{id}`                  | —        | —        |
-| DELETE   | `/call/log/{id}`                  | —        | —        |
-| POST     | `/call/log/delete_all/`           | —        | —        |
-| POST     | `/call/log/mark_all_as_read/`     | —        | —        |
-| GET      | `/call/account`                   | —        | —        |
-| GET      | `/call/voicemail/`                | —        | —        |
-| GET      | `/call/voicemail/{id}`            | —        | —        |
-| PUT      | `/call/voicemail/{id}`            | —        | —        |
-| DELETE   | `/call/voicemail/{id}`            | —        | —        |
-| GET      | `/call/voicemail/{id}/audio_file` | —        | —        |
+| GET      | `/call/log/`                      | `fb.call.list()`                  | ✓        |
+| GET      | `/call/log/{id}`                  | `fb.call.get(id)`                 | —        |
+| PUT      | `/call/log/{id}`                  | `fb.call.mark_as_read(id)`        | —        |
+| DELETE   | `/call/log/{id}`                  | `fb.call.delete(id)`              | —        |
+| POST     | `/call/log/delete_all/`           | `fb.call.delete_all()`            | —        |
+| POST     | `/call/log/mark_all_as_read/`     | `fb.call.mark_all_as_read()`      | —        |
+| GET      | `/call/account`                   | `fb.call.account()`               | ✓        |
+| GET      | `/call/voicemail/`                | `fb.call.voicemails()`            | ✓        |
+| GET      | `/call/voicemail/{id}`            | `fb.call.get_voicemail(id)`       | —        |
+| PUT      | `/call/voicemail/{id}`            | `fb.call.mark_voicemail_as_read(id)` | —     |
+| DELETE   | `/call/voicemail/{id}`            | `fb.call.delete_voicemail(id)`    | —        |
+| GET      | `/call/voicemail/{id}/audio_file` | `fb.call.download_voicemail(id)`  | —        |
 
 ## Contacts
 

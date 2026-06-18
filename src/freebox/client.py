@@ -7,6 +7,7 @@ from typing import Any
 import httpx
 
 from freebox.auth import Auth, raise_for_error_code
+from freebox.call import Call
 from freebox.connection import Connection
 from freebox.dhcp import Dhcp
 from freebox.firewall import Firewall
@@ -94,6 +95,11 @@ class Freebox:
     def permissions(self) -> dict[str, bool]:
         """App permissions granted by the user."""
         return self._auth.permissions
+
+    @property
+    def call(self) -> Call:
+        """Access the Call log and Voicemail API."""
+        return Call(self)
 
     @property
     def connection(self) -> Connection:
@@ -249,6 +255,21 @@ class Freebox:
         except Exception as exc:
             raise FreeboxError(str(exc)) from exc
         return resp.text
+
+    def get_bytes(self, path: str) -> bytes:
+        """Send an authenticated GET and return the raw response bytes.
+
+        Used for endpoints that return binary data (e.g. voicemail audio files).
+        """
+        headers = {}
+        if self._auth.session_token:
+            headers["X-Fbx-App-Auth"] = self._auth.session_token
+        resp = self._http.get(self._url(path), headers=headers)
+        try:
+            resp.raise_for_status()
+        except Exception as exc:
+            raise FreeboxError(str(exc)) from exc
+        return resp.content
 
     def events(self, events: list[str]) -> EventStream:
         """Return a WebSocket event stream subscribed to the given event names.
