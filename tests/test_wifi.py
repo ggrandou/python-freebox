@@ -25,6 +25,14 @@ from freebox import (
     WifiBssStatus,
     WifiPlanning,
     WifiMacFilter,
+    WifiDiagItem,
+    WifiDiag,
+    WifiWpsConfig,
+    WifiWpsSession,
+    WifiCustomKeyConfig,
+    WifiCustomKeyParams,
+    WifiCustomKey,
+    WifiMLOConfig,
 )
 from tests.conftest import (
     APP_ID, APP_NAME, APP_VERSION, DEVICE_NAME,
@@ -210,6 +218,47 @@ MAC_FILTER_DATA = {
     "type": "whitelist",
     "hostname": "00:07:CB:01:02:03",
 }
+
+DIAG_ITEM_AP = {"ap_id": 0, "code": "channel_width", "severity": "minor"}
+DIAG_ITEM_BSS = {"bssid": "02:00:00:00:00:08", "code": "network_security", "severity": "major"}
+
+DIAG_DATA = {"aps": [DIAG_ITEM_AP], "bsss": [DIAG_ITEM_BSS]}
+
+WPS_CONFIG_DATA = {"enabled": True}
+
+WPS_SESSION_DATA = {
+    "id": 1,
+    "bss_uuid": "6a55ea3d-29fa-4bd9-b1e3-22a49a3ca134",
+    "ssid": "r0ro 5G",
+    "active": False,
+    "result": "failed_timeout",
+    "start_date": 1516012531,
+    "end_date": 1516012651,
+    "mac": "00:00:00:00:00:00",
+}
+
+CUSTOM_KEY_CONFIG_DATA = {
+    "ssid": "Freebox-guest",
+    "ssid_read_only": False,
+    "hide_ssid": False,
+    "encryption": "wpa2_psk",
+}
+
+CUSTOM_KEY_PARAMS_DATA = {
+    "description": "soiree",
+    "key": "YY5Sg74W3VNxrmfwAz7aCY7OVqRVG2JN",
+    "max_use_count": 100,
+    "duration": 86400,
+    "access_type": "full",
+}
+
+CUSTOM_KEY_DATA = {
+    "id": 8,
+    "remaining": 86376,
+    "params": CUSTOM_KEY_PARAMS_DATA,
+}
+
+MLO_CONFIG_DATA = {"partners": [0, 1]}
 
 
 # ── WifiGlobalConfig ────────────────────────────────────────────────────────────
@@ -775,3 +824,306 @@ class TestWifi:
         )
         fb.wifi.delete_mac_filter(fid)
         assert httpx_mock.get_requests()[-1].method == "DELETE"
+
+    def test_default_config(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/wifi/default", json=api_ok(GLOBAL_CONFIG_DATA))
+        cfg = fb.wifi.default_config()
+        assert isinstance(cfg, WifiGlobalConfig)
+        assert cfg.enabled is True
+
+    def test_ap_default(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/wifi/ap/0/default", json=api_ok(AP_DATA))
+        ap = fb.wifi.ap_default(0)
+        assert isinstance(ap, WifiAp)
+        assert ap.id == 0
+
+    def test_bss_default(self, fb, httpx_mock):
+        bss_id = "00:24:D4:AA:BB:CC"
+        httpx_mock.add_response(url=f"{API}/wifi/bss/{bss_id}/default", json=api_ok(BSS_DATA))
+        b = fb.wifi.bss_default(bss_id)
+        assert isinstance(b, WifiBss)
+
+    def test_diag(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/wifi/diag", json=api_ok(DIAG_DATA))
+        d = fb.wifi.diag()
+        assert isinstance(d, WifiDiag)
+        assert len(d.aps) == 1
+        assert d.aps[0].ap_id == 0
+        assert d.aps[0].code == "channel_width"
+        assert d.aps[0].severity == "minor"
+        assert len(d.bsss) == 1
+        assert d.bsss[0].bssid == "02:00:00:00:00:08"
+
+    def test_fix_diag(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/wifi/diag", method="POST", json={"success": True})
+        fb.wifi.fix_diag(aps=[{"ap_id": 0, "code": "channel_width"}])
+        assert httpx_mock.get_requests()[-1].method == "POST"
+
+    def test_ap_diag(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/wifi/ap/0/diag", json=api_ok([DIAG_ITEM_AP]))
+        items = fb.wifi.ap_diag(0)
+        assert len(items) == 1
+        assert isinstance(items[0], WifiDiagItem)
+        assert items[0].code == "channel_width"
+
+    def test_fix_ap_diag(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/wifi/ap/0/diag", method="POST", json={"success": True})
+        fb.wifi.fix_ap_diag(0, ["channel_width"])
+        assert httpx_mock.get_requests()[-1].method == "POST"
+
+    def test_bss_diag(self, fb, httpx_mock):
+        bss_id = "02:00:00:00:00:08"
+        httpx_mock.add_response(url=f"{API}/wifi/bss/{bss_id}/diag", json=api_ok([DIAG_ITEM_BSS]))
+        items = fb.wifi.bss_diag(bss_id)
+        assert len(items) == 1
+        assert isinstance(items[0], WifiDiagItem)
+        assert items[0].bssid == bss_id
+
+    def test_fix_bss_diag(self, fb, httpx_mock):
+        bss_id = "02:00:00:00:00:08"
+        httpx_mock.add_response(
+            url=f"{API}/wifi/bss/{bss_id}/diag", method="POST", json={"success": True}
+        )
+        fb.wifi.fix_bss_diag(bss_id, ["network_security"])
+        assert httpx_mock.get_requests()[-1].method == "POST"
+
+    def test_bss_mlo_config(self, fb, httpx_mock):
+        bss_id = "00:24:D4:AA:BB:CC"
+        httpx_mock.add_response(
+            url=f"{API}/wifi/bss/{bss_id}/mlo/config", json=api_ok(MLO_CONFIG_DATA)
+        )
+        m = fb.wifi.bss_mlo_config(bss_id)
+        assert isinstance(m, WifiMLOConfig)
+        assert m.partners == [0, 1]
+
+    def test_bss_mlo_allowed_combs(self, fb, httpx_mock):
+        bss_id = "00:24:D4:AA:BB:CC"
+        httpx_mock.add_response(
+            url=f"{API}/wifi/bss/{bss_id}/mlo/allowed_comb", json=api_ok([[0, 1], [0]])
+        )
+        combs = fb.wifi.bss_mlo_allowed_combs(bss_id)
+        assert combs == [[0, 1], [0]]
+
+    def test_wps_config(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/wifi/wps/config/", json=api_ok(WPS_CONFIG_DATA))
+        cfg = fb.wifi.wps_config()
+        assert isinstance(cfg, WifiWpsConfig)
+        assert cfg.enabled is True
+
+    def test_set_wps_config(self, fb, httpx_mock):
+        httpx_mock.add_response(
+            url=f"{API}/wifi/wps/config/", method="PUT", json=api_ok({"enabled": False})
+        )
+        cfg = fb.wifi.set_wps_config(enabled=False)
+        assert cfg.enabled is False
+
+    def test_wps_sessions(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/wifi/wps/sessions/", json=api_ok([WPS_SESSION_DATA]))
+        sessions = fb.wifi.wps_sessions()
+        assert len(sessions) == 1
+        assert isinstance(sessions[0], WifiWpsSession)
+        assert sessions[0].result == "failed_timeout"
+        assert sessions[0].active is False
+
+    def test_wps_sessions_empty(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/wifi/wps/sessions/", json=api_ok([]))
+        assert fb.wifi.wps_sessions() == []
+
+    def test_start_wps(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/wifi/wps/start/", method="POST", json=api_ok(1))
+        session_id = fb.wifi.start_wps("14:0C:76:87:04:38")
+        assert session_id == 1
+
+    def test_clear_wps_sessions(self, fb, httpx_mock):
+        httpx_mock.add_response(
+            url=f"{API}/wifi/wps/sessions/", method="DELETE", json={"success": True}
+        )
+        fb.wifi.clear_wps_sessions()
+        assert httpx_mock.get_requests()[-1].method == "DELETE"
+
+    def test_custom_keys_config(self, fb, httpx_mock):
+        httpx_mock.add_response(
+            url=f"{API}/wifi/custom_keys/config/", json=api_ok(CUSTOM_KEY_CONFIG_DATA)
+        )
+        cfg = fb.wifi.custom_keys_config()
+        assert isinstance(cfg, WifiCustomKeyConfig)
+        assert cfg.ssid == "Freebox-guest"
+        assert cfg.ssid_read_only is False
+
+    def test_set_custom_keys_config(self, fb, httpx_mock):
+        updated = {**CUSTOM_KEY_CONFIG_DATA, "ssid": "my-guest"}
+        httpx_mock.add_response(
+            url=f"{API}/wifi/custom_keys/config/", method="PUT", json=api_ok(updated)
+        )
+        cfg = fb.wifi.set_custom_keys_config(ssid="my-guest")
+        assert cfg.ssid == "my-guest"
+
+    def test_custom_keys(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/wifi/custom_key/", json=api_ok([CUSTOM_KEY_DATA]))
+        keys = fb.wifi.custom_keys()
+        assert len(keys) == 1
+        assert isinstance(keys[0], WifiCustomKey)
+        assert keys[0].id == 8
+        assert keys[0].remaining == 86376
+        assert isinstance(keys[0].params, WifiCustomKeyParams)
+        assert keys[0].params.access_type == "full"
+
+    def test_custom_key(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/wifi/custom_key/8", json=api_ok(CUSTOM_KEY_DATA))
+        k = fb.wifi.custom_key(8)
+        assert isinstance(k, WifiCustomKey)
+        assert k.id == 8
+
+    def test_add_custom_key(self, fb, httpx_mock):
+        httpx_mock.add_response(
+            url=f"{API}/wifi/custom_key/", method="POST", json=api_ok(CUSTOM_KEY_DATA)
+        )
+        k = fb.wifi.add_custom_key(description="soiree", duration=86400, access_type="full")
+        assert isinstance(k, WifiCustomKey)
+        assert httpx_mock.get_requests()[-1].method == "POST"
+
+    def test_delete_custom_key(self, fb, httpx_mock):
+        httpx_mock.add_response(
+            url=f"{API}/wifi/custom_key/8", method="DELETE", json={"success": True}
+        )
+        fb.wifi.delete_custom_key(8)
+        assert httpx_mock.get_requests()[-1].method == "DELETE"
+
+    def test_temp_disable_state(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/wifi/temp_disable", json=api_ok({"remaining": 267}))
+        remaining = fb.wifi.temp_disable_state()
+        assert remaining == 267
+
+    def test_temp_disable_state_zero(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/wifi/temp_disable", json=api_ok({"remaining": 0}))
+        assert fb.wifi.temp_disable_state() == 0
+
+    def test_temp_disable(self, fb, httpx_mock):
+        httpx_mock.add_response(
+            url=f"{API}/wifi/temp_disable", method="POST", json={"success": True}
+        )
+        fb.wifi.temp_disable(1200, "2d4g")
+        assert httpx_mock.get_requests()[-1].method == "POST"
+
+
+# ── New dataclass unit tests ───────────────────────────────────────────────────
+
+class TestWifiDiagItem:
+    def test_ap_item(self):
+        item = WifiDiagItem._from_dict(DIAG_ITEM_AP)
+        assert item.ap_id == 0
+        assert item.bssid is None
+        assert item.code == "channel_width"
+        assert item.severity == "minor"
+
+    def test_bss_item(self):
+        item = WifiDiagItem._from_dict(DIAG_ITEM_BSS)
+        assert item.bssid == "02:00:00:00:00:08"
+        assert item.ap_id is None
+        assert item.severity == "major"
+
+    def test_defaults(self):
+        item = WifiDiagItem._from_dict({})
+        assert item.code == ""
+        assert item.severity == ""
+        assert item.ap_id is None
+        assert item.bssid is None
+
+
+class TestWifiDiag:
+    def test_fields(self):
+        d = WifiDiag._from_dict(DIAG_DATA)
+        assert len(d.aps) == 1
+        assert len(d.bsss) == 1
+
+    def test_empty(self):
+        d = WifiDiag._from_dict({})
+        assert d.aps == []
+        assert d.bsss == []
+
+
+class TestWifiWpsConfig:
+    def test_fields(self):
+        c = WifiWpsConfig._from_dict({"enabled": True})
+        assert c.enabled is True
+
+    def test_defaults(self):
+        c = WifiWpsConfig._from_dict({})
+        assert c.enabled is False
+
+
+class TestWifiWpsSession:
+    def test_fields(self):
+        s = WifiWpsSession._from_dict(WPS_SESSION_DATA)
+        assert s.id == 1
+        assert s.bss_uuid == "6a55ea3d-29fa-4bd9-b1e3-22a49a3ca134"
+        assert s.ssid == "r0ro 5G"
+        assert s.active is False
+        assert s.result == "failed_timeout"
+        assert s.start_date == 1516012531
+        assert s.end_date == 1516012651
+        assert s.mac == "00:00:00:00:00:00"
+
+    def test_defaults(self):
+        s = WifiWpsSession._from_dict({})
+        assert s.id == 0
+        assert s.active is False
+        assert s.result == ""
+
+
+class TestWifiCustomKeyConfig:
+    def test_fields(self):
+        c = WifiCustomKeyConfig._from_dict(CUSTOM_KEY_CONFIG_DATA)
+        assert c.ssid == "Freebox-guest"
+        assert c.ssid_read_only is False
+        assert c.hide_ssid is False
+        assert c.encryption == "wpa2_psk"
+
+    def test_defaults(self):
+        c = WifiCustomKeyConfig._from_dict({})
+        assert c.ssid == ""
+        assert c.ssid_read_only is False
+
+
+class TestWifiCustomKeyParams:
+    def test_fields(self):
+        p = WifiCustomKeyParams._from_dict(CUSTOM_KEY_PARAMS_DATA)
+        assert p.description == "soiree"
+        assert p.key == "YY5Sg74W3VNxrmfwAz7aCY7OVqRVG2JN"
+        assert p.max_use_count == 100
+        assert p.duration == 86400
+        assert p.access_type == "full"
+
+    def test_defaults(self):
+        p = WifiCustomKeyParams._from_dict({})
+        assert p.description == ""
+        assert p.max_use_count == 0
+        assert p.access_type == "full"
+
+
+class TestWifiCustomKey:
+    def test_fields(self):
+        k = WifiCustomKey._from_dict(CUSTOM_KEY_DATA)
+        assert k.id == 8
+        assert k.remaining == 86376
+        assert isinstance(k.params, WifiCustomKeyParams)
+        assert k.params.access_type == "full"
+
+    def test_no_params(self):
+        k = WifiCustomKey._from_dict({"id": 1, "remaining": 0})
+        assert k.params is None
+
+    def test_defaults(self):
+        k = WifiCustomKey._from_dict({})
+        assert k.id == 0
+        assert k.remaining == 0
+
+
+class TestWifiMLOConfig:
+    def test_fields(self):
+        m = WifiMLOConfig._from_dict(MLO_CONFIG_DATA)
+        assert m.partners == [0, 1]
+
+    def test_empty(self):
+        m = WifiMLOConfig._from_dict({})
+        assert m.partners == []

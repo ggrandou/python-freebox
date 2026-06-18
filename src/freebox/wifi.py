@@ -469,6 +469,146 @@ class WifiMacFilter:
         )
 
 
+@dataclass
+class WifiDiagItem:
+    """A diagnostic finding for an AP or BSS."""
+
+    code: str
+    severity: str
+    ap_id: int | None
+    bssid: str | None
+
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> WifiDiagItem:
+        return cls(
+            code=d.get("code", ""),
+            severity=d.get("severity", ""),
+            ap_id=d.get("ap_id"),
+            bssid=d.get("bssid"),
+        )
+
+
+@dataclass
+class WifiDiag:
+    """Global Wi-Fi diagnostic report."""
+
+    aps: list[WifiDiagItem]
+    bsss: list[WifiDiagItem]
+
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> WifiDiag:
+        return cls(
+            aps=[WifiDiagItem._from_dict(x) for x in d.get("aps") or []],
+            bsss=[WifiDiagItem._from_dict(x) for x in d.get("bsss") or []],
+        )
+
+
+@dataclass
+class WifiWpsConfig:
+    """Global WPS enabled/disabled state."""
+
+    enabled: bool
+
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> WifiWpsConfig:
+        return cls(enabled=d.get("enabled", False))
+
+
+@dataclass
+class WifiWpsSession:
+    """A WPS pairing session."""
+
+    id: int
+    bss_uuid: str
+    ssid: str
+    active: bool
+    result: str
+    start_date: int
+    end_date: int
+    mac: str
+
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> WifiWpsSession:
+        return cls(
+            id=d.get("id", 0),
+            bss_uuid=d.get("bss_uuid", ""),
+            ssid=d.get("ssid", ""),
+            active=d.get("active", False),
+            result=d.get("result", ""),
+            start_date=d.get("start_date", 0),
+            end_date=d.get("end_date", 0),
+            mac=d.get("mac", ""),
+        )
+
+
+@dataclass
+class WifiCustomKeyConfig:
+    """Configuration of the dedicated guest Wi-Fi network."""
+
+    ssid: str
+    ssid_read_only: bool
+    hide_ssid: bool
+    encryption: str
+
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> WifiCustomKeyConfig:
+        return cls(
+            ssid=d.get("ssid", ""),
+            ssid_read_only=d.get("ssid_read_only", False),
+            hide_ssid=d.get("hide_ssid", False),
+            encryption=d.get("encryption", ""),
+        )
+
+
+@dataclass
+class WifiCustomKeyParams:
+    """Parameters of a Wi-Fi guest custom key."""
+
+    description: str
+    key: str
+    max_use_count: int
+    duration: int
+    access_type: str
+
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> WifiCustomKeyParams:
+        return cls(
+            description=d.get("description", ""),
+            key=d.get("key", ""),
+            max_use_count=d.get("max_use_count", 0),
+            duration=d.get("duration", 0),
+            access_type=d.get("access_type", "full"),
+        )
+
+
+@dataclass
+class WifiCustomKey:
+    """A Wi-Fi guest custom key (temporary guest access)."""
+
+    id: int
+    remaining: int
+    params: WifiCustomKeyParams | None
+
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> WifiCustomKey:
+        return cls(
+            id=d.get("id", 0),
+            remaining=d.get("remaining", 0),
+            params=WifiCustomKeyParams._from_dict(d["params"]) if "params" in d else None,
+        )
+
+
+@dataclass
+class WifiMLOConfig:
+    """MLO (Multi-Link Operation) configuration for a BSS."""
+
+    partners: list[int]
+
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> WifiMLOConfig:
+        return cls(partners=list(d.get("partners") or []))
+
+
 class Wifi:
     """Freebox Wi-Fi API.
 
@@ -622,3 +762,154 @@ class Wifi:
     def delete_mac_filter(self, filter_id: str) -> None:
         """Delete the Wi-Fi MAC filter with the given id."""
         self._client.delete(f"wifi/mac_filter/{filter_id}")
+
+    # ── Default configs ────────────────────────────────────────────────────────
+
+    def default_config(self) -> WifiGlobalConfig:
+        """Return factory-default global Wi-Fi configuration."""
+        return WifiGlobalConfig._from_dict(self._client.get("wifi/default"))
+
+    def ap_default(self, ap_id: int) -> WifiAp:
+        """Return factory-default configuration for the given AP."""
+        return WifiAp._from_dict(self._client.get(f"wifi/ap/{ap_id}/default"))
+
+    def bss_default(self, bss_id: str) -> WifiBss:
+        """Return factory-default configuration for the given BSS."""
+        return WifiBss._from_dict(self._client.get(f"wifi/bss/{bss_id}/default"))
+
+    # ── Diagnostics ────────────────────────────────────────────────────────────
+
+    def diag(self) -> WifiDiag:
+        """Return global Wi-Fi diagnostics covering all APs and BSSes."""
+        return WifiDiag._from_dict(self._client.get("wifi/diag"))
+
+    def fix_diag(
+        self,
+        aps: list[dict[str, Any]] | None = None,
+        bsss: list[dict[str, Any]] | None = None,
+    ) -> None:
+        """Apply diagnostic fixes globally.
+
+        ``aps`` is a list of ``{"ap_id": int, "code": str}`` dicts.
+        ``bsss`` is a list of ``{"bssid": str, "code": str}`` dicts.
+        """
+        payload: dict[str, Any] = {}
+        if aps is not None:
+            payload["aps"] = aps
+        if bsss is not None:
+            payload["bsss"] = bsss
+        self._client.post("wifi/diag", json=payload)
+
+    def ap_diag(self, ap_id: int) -> list[WifiDiagItem]:
+        """Return diagnostic items for the given AP."""
+        return [WifiDiagItem._from_dict(x) for x in self._client.get(f"wifi/ap/{ap_id}/diag") or []]
+
+    def fix_ap_diag(self, ap_id: int, codes: list[str]) -> None:
+        """Apply diagnostic fixes for the given AP.
+
+        ``codes`` is a list of code strings (e.g. ``["channel_width"]``).
+        """
+        self._client.post(f"wifi/ap/{ap_id}/diag", json=codes)
+
+    def bss_diag(self, bss_id: str) -> list[WifiDiagItem]:
+        """Return diagnostic items for the given BSS."""
+        return [WifiDiagItem._from_dict(x) for x in self._client.get(f"wifi/bss/{bss_id}/diag") or []]
+
+    def fix_bss_diag(self, bss_id: str, codes: list[str]) -> None:
+        """Apply diagnostic fixes for the given BSS.
+
+        ``codes`` is a list of code strings (e.g. ``["network_security"]``).
+        """
+        self._client.post(f"wifi/bss/{bss_id}/diag", json=codes)
+
+    # ── MLO ───────────────────────────────────────────────────────────────────
+
+    def bss_mlo_config(self, bss_id: str) -> WifiMLOConfig:
+        """Return the MLO configuration for the given BSS."""
+        return WifiMLOConfig._from_dict(self._client.get(f"wifi/bss/{bss_id}/mlo/config"))
+
+    def bss_mlo_allowed_combs(self, bss_id: str) -> list[list[int]]:
+        """Return the allowed MLO AP partner combinations for the given BSS."""
+        result = self._client.get(f"wifi/bss/{bss_id}/mlo/allowed_comb")
+        return result if isinstance(result, list) else []
+
+    # ── WPS ───────────────────────────────────────────────────────────────────
+
+    def wps_config(self) -> WifiWpsConfig:
+        """Return the global WPS configuration."""
+        return WifiWpsConfig._from_dict(self._client.get("wifi/wps/config/"))
+
+    def set_wps_config(self, **kwargs: Any) -> WifiWpsConfig:
+        """Update the global WPS configuration.
+
+        Accepted keyword arguments: ``enabled`` (bool).
+        """
+        return WifiWpsConfig._from_dict(self._client.put("wifi/wps/config/", json=kwargs))
+
+    def wps_sessions(self) -> list[WifiWpsSession]:
+        """Return the list of WPS sessions."""
+        return [WifiWpsSession._from_dict(s) for s in self._client.get("wifi/wps/sessions/") or []]
+
+    def start_wps(self, bssid: str) -> int:
+        """Start a WPS session on the given BSS.
+
+        Returns the new session id.
+        """
+        result = self._client.post("wifi/wps/start/", json={"bssid": bssid})
+        return result if isinstance(result, int) else int(result or 0)
+
+    def clear_wps_sessions(self) -> None:
+        """Delete all WPS sessions."""
+        self._client.delete("wifi/wps/sessions/")
+
+    # ── Custom keys (guest Wi-Fi) ──────────────────────────────────────────────
+
+    def custom_keys_config(self) -> WifiCustomKeyConfig:
+        """Return the guest Wi-Fi network configuration."""
+        return WifiCustomKeyConfig._from_dict(self._client.get("wifi/custom_keys/config/"))
+
+    def set_custom_keys_config(self, **kwargs: Any) -> WifiCustomKeyConfig:
+        """Update the guest Wi-Fi network configuration.
+
+        Accepted keyword arguments: ``ssid``.
+        """
+        return WifiCustomKeyConfig._from_dict(self._client.put("wifi/custom_keys/config/", json=kwargs))
+
+    def custom_keys(self) -> list[WifiCustomKey]:
+        """Return the list of active guest Wi-Fi custom keys."""
+        return [WifiCustomKey._from_dict(k) for k in self._client.get("wifi/custom_key/") or []]
+
+    def custom_key(self, key_id: int) -> WifiCustomKey:
+        """Return the custom key with the given id."""
+        return WifiCustomKey._from_dict(self._client.get(f"wifi/custom_key/{key_id}"))
+
+    def add_custom_key(self, **kwargs: Any) -> WifiCustomKey:
+        """Create a new guest Wi-Fi custom key.
+
+        Accepted keyword arguments: ``description``, ``key``,
+        ``max_use_count``, ``duration``, ``access_type``.
+        """
+        return WifiCustomKey._from_dict(self._client.post("wifi/custom_key/", json=kwargs))
+
+    def delete_custom_key(self, key_id: int) -> None:
+        """Delete the custom key with the given id."""
+        self._client.delete(f"wifi/custom_key/{key_id}")
+
+    # ── Temporary disable ──────────────────────────────────────────────────────
+
+    def temp_disable_state(self) -> int:
+        """Return the remaining seconds of the current temporary Wi-Fi disable.
+
+        Returns 0 when no temporary disable is active.
+        """
+        result = self._client.get("wifi/temp_disable")
+        return result.get("remaining", 0) if isinstance(result, dict) else 0
+
+    def temp_disable(self, duration: int, keep: str) -> None:
+        """Temporarily disable some Wi-Fi bands.
+
+        ``duration`` is in seconds.
+        ``keep`` specifies which band stays active: ``"2d4g"``, ``"5g"`` or ``"6g"``.
+        Set ``duration`` to 0 to cancel an ongoing temporary disable.
+        """
+        self._client.post("wifi/temp_disable", json={"duration": duration, "keep": keep})

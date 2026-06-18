@@ -147,6 +147,83 @@ def main() -> None:
     except FreeboxError as e:
         print(f"  (unavailable: {e})")
 
+    # ── Global diagnostics ─────────────────────────────────────────────────────
+    section("Wi-Fi diagnostics")
+    try:
+        d = fb.wifi.diag()
+        if not d.aps and not d.bsss:
+            print("  (no issues)")
+        for item in d.aps:
+            print(f"  AP {item.ap_id}: [{item.severity}] {item.code}")
+        for item in d.bsss:
+            print(f"  BSS {item.bssid}: [{item.severity}] {item.code}")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── WPS ────────────────────────────────────────────────────────────────────
+    section("WPS config")
+    try:
+        wps = fb.wifi.wps_config()
+        row("enabled", wps.enabled)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("WPS sessions")
+    try:
+        sessions = fb.wifi.wps_sessions()
+        if not sessions:
+            print("  (no sessions)")
+        for s in sessions:
+            row(f"session {s.id}", f"ssid={s.ssid!r}  active={s.active}  result={s.result}")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── Guest Wi-Fi (custom keys) ───────────────────────────────────────────────
+    section("Guest Wi-Fi config")
+    try:
+        cfg = fb.wifi.custom_keys_config()
+        row("ssid", cfg.ssid)
+        row("ssid_read_only", cfg.ssid_read_only)
+        row("hide_ssid", cfg.hide_ssid)
+        row("encryption", cfg.encryption)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("Guest Wi-Fi custom keys")
+    try:
+        keys = fb.wifi.custom_keys()
+        if not keys:
+            print("  (no keys)")
+        for k in keys:
+            desc = k.params.description if k.params else "?"
+            row(f"key {k.id}", f"desc={desc!r}  remaining={k.remaining}s")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── Temporary disable ──────────────────────────────────────────────────────
+    section("Temporary Wi-Fi disable")
+    try:
+        remaining = fb.wifi.temp_disable_state()
+        if remaining:
+            print(f"  active — {remaining}s remaining")
+        else:
+            print("  inactive")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── BSS MLO ────────────────────────────────────────────────────────────────
+    section("BSS MLO configuration")
+    try:
+        for b in fb.wifi.bss_list():
+            try:
+                mlo = fb.wifi.bss_mlo_config(b.id)
+                combs = fb.wifi.bss_mlo_allowed_combs(b.id)
+                row(b.id, f"partners={mlo.partners}  allowed={combs}")
+            except FreeboxError:
+                pass
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
     fb.close()
     print()
 
