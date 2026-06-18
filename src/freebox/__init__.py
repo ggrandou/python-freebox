@@ -1,4 +1,12 @@
 from freebox.airmedia import AirMedia, AirMediaConfig, AirMediaReceiver
+from freebox.contact import (
+    Contact,
+    ContactAddress,
+    ContactEmail,
+    ContactEntry,
+    ContactNumber,
+    ContactUrl,
+)
 from freebox.fs import FileInfo, Fs, FsLsResult, FsTask
 from freebox.downloads import (
     DhtStats,
@@ -157,6 +165,13 @@ from freebox.exceptions import (
 __all__ = [
     # Client
     "Freebox",
+    # Contact (phonebook)
+    "Contact",
+    "ContactEntry",
+    "ContactNumber",
+    "ContactAddress",
+    "ContactUrl",
+    "ContactEmail",
     # File System
     "Fs",
     "FileInfo",

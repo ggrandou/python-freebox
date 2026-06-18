@@ -91,16 +91,16 @@ Legend: ✓ = done · — = not done yet
 
 | Method | Route                                                    | Function | Tested |
 | ------ | -------------------------------------------------------- | -------- | :----: |
-| GET    | `/contact/`                                              | —        | —      |
-| GET    | `/contact/{id}`                                          | —        | —      |
-| POST   | `/contact/`                                              | —        | —      |
-| PUT    | `/contact/{id}`                                          | —        | —      |
-| DELETE | `/contact/{id}`                                          | —        | —      |
-| GET    | `/contact/{contact_id}/[numbers,addresses,urls,emails]/` | —        | —      |
-| GET    | `/[number,address,url,email]/{id}`                       | —        | —      |
-| POST   | `/[number,address,url,email]/`                           | —        | —      |
-| PUT    | `/[number,address,url,email]/{id}`                       | —        | —      |
-| DELETE | `/[number,address,url,email]/{id}`                       | —        | —      |
+| GET    | `/contact/`                                              | `fb.contact.list()` | —   |
+| GET    | `/contact/{id}`                                          | `fb.contact.get(id)` | —  |
+| POST   | `/contact/`                                              | `fb.contact.create(**kwargs)` | — |
+| PUT    | `/contact/{id}`                                          | `fb.contact.update(id, **kwargs)` | — |
+| DELETE | `/contact/{id}`                                          | `fb.contact.delete(id)` | — |
+| GET    | `/contact/{contact_id}/[numbers,addresses,urls,emails]/` | `fb.contact.numbers/addresses/urls/emails(id)` | — |
+| GET    | `/[number,address,url,email]/{id}`                       | `fb.contact.get_number/address/url/email(id)` | — |
+| POST   | `/[number,address,url,email]/`                           | `fb.contact.create_number/address/url/email(...)` | — |
+| PUT    | `/[number,address,url,email]/{id}`                       | `fb.contact.update_number/address/url/email(id)` | — |
+| DELETE | `/[number,address,url,email]/{id}`                       | `fb.contact.delete_number/address/url/email(id)` | — |
 
 ## DHCP
 

@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+"""Test the Contact (phonebook) API against a real Freebox.
+
+Usage:
+    tools/test_contact [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+Read-only: lists contacts and their sub-entries.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<24} {value}")
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    section("Contact list")
+    try:
+        contacts = fb.contact.list(limit=20)
+        if not contacts:
+            print("  (empty phonebook)")
+        else:
+            print(f"  {len(contacts)} contact(s) returned")
+        for c in contacts[:10]:
+            numbers_str = ", ".join(n.number for n in c.numbers) or "(no numbers)"
+            print(f"\n  [{c.id}] {c.display_name!r}")
+            row("first_name", c.first_name)
+            row("last_name", c.last_name)
+            row("company", c.company or "(none)")
+            row("numbers", numbers_str)
+            row("emails", ", ".join(e.email for e in c.emails) or "(none)")
+            row("last_update", c.last_update)
+        if len(contacts) > 10:
+            print(f"\n  … {len(contacts) - 10} more contacts")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("Sub-resources for first contact (if any)")
+    try:
+        contacts = fb.contact.list(limit=1)
+        if contacts:
+            c = contacts[0]
+            print(f"  Contact [{c.id}] {c.display_name!r}")
+
+            nums = fb.contact.numbers(c.id)
+            print(f"  Numbers ({len(nums)}):")
+            for n in nums:
+                print(f"    [{n.id}] {n.type}: {n.number}  default={n.is_default}")
+
+            addrs = fb.contact.addresses(c.id)
+            print(f"  Addresses ({len(addrs)}):")
+            for a in addrs:
+                print(f"    [{a.id}] {a.type}: {a.street}, {a.zipcode} {a.city}")
+
+            urls = fb.contact.urls(c.id)
+            print(f"  URLs ({len(urls)}):")
+            for u in urls:
+                print(f"    [{u.id}] {u.type}: {u.url}")
+
+            emails = fb.contact.emails(c.id)
+            print(f"  Emails ({len(emails)}):")
+            for e in emails:
+                print(f"    [{e.id}] {e.type}: {e.email}")
+        else:
+            print("  (no contacts)")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()

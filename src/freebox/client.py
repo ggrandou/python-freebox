@@ -7,6 +7,7 @@ from typing import Any
 import httpx
 
 from freebox.airmedia import AirMedia
+from freebox.contact import Contact
 from freebox.fs import Fs
 from freebox.auth import Auth, raise_for_error_code
 from freebox.call import Call
@@ -99,6 +100,11 @@ class Freebox:
     def permissions(self) -> dict[str, bool]:
         """App permissions granted by the user."""
         return self._auth.permissions
+
+    @property
+    def contact(self) -> Contact:
+        """Access the Contact (phonebook) API."""
+        return Contact(self)
 
     @property
     def fs(self) -> Fs:
