@@ -251,10 +251,10 @@ Legend: ✓ = done · — = not done yet
 
 ## LCD
 
-| Method   | Route          | Function | Tested   |
-| -------- | -------------- | -------- | :------: |
-| GET      | `/lcd/config/` | —        | —        |
-| PUT      | `/lcd/config/` | —        | —        |
+| Method   | Route          | Function              | Tested   |
+| -------- | -------------- | --------------------- | :------: |
+| GET      | `/lcd/config/` | `fb.lcd.config()`     | ✓        |
+| PUT      | `/lcd/config/` | `fb.lcd.set_config()` | —        |
 
 ## LED Strip
 

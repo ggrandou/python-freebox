@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""Test the LCD screen API against a real Freebox.
+
+Usage:
+    tools/test_lcd [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<32} {value}")
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    section("LCD screen configuration")
+    try:
+        cfg = fb.lcd.config()
+        row("brightness", cfg.brightness)
+        row("orientation", cfg.orientation)
+        row("orientation_forced", cfg.orientation_forced)
+        row("hide_wifi_key", cfg.hide_wifi_key)
+        if cfg.screensaver:
+            row("screensaver", cfg.screensaver)
+        if cfg.led_strip_animation or cfg.led_strip_brightness:
+            row("led_strip_enabled", cfg.led_strip_enabled)
+            row("led_strip_brightness", cfg.led_strip_brightness)
+            row("led_strip_animation", cfg.led_strip_animation or "(none)")
+            row("available_led_strip_animations",
+                ", ".join(cfg.available_led_strip_animations) or "(none)")
+        row("hide_status_led", cfg.hide_status_led)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()

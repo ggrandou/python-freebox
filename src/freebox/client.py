@@ -11,6 +11,7 @@ from freebox.connection import Connection
 from freebox.dhcp import Dhcp
 from freebox.firewall import Firewall
 from freebox.ftp import Ftp
+from freebox.lcd import Lcd
 from freebox.dhcpv6 import Dhcpv6
 from freebox.discovery import DiscoveryInfo, discover_http, ssl_context
 from freebox.events import EventStream
@@ -107,6 +108,11 @@ class Freebox:
     def ftp(self) -> Ftp:
         """Access the FTP server API."""
         return Ftp(self)
+
+    @property
+    def lcd(self) -> Lcd:
+        """Access the LCD screen API."""
+        return Lcd(self)
 
     @property
     def dhcpv6(self) -> Dhcpv6:
