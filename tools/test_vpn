@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+"""Report Freebox VPN server and VPN client status.
+
+Usage:
+    tools/test_vpn [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<30} {value}")
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    # ── VPN Server list ────────────────────────────────────────────────────────
+    section("VPN Server list")
+    try:
+        servers = fb.vpn_server.servers()
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+        fb.close()
+        return
+
+    for s in servers:
+        row(s.name, f"type={s.type:<10}  state={s.state:<8}  connections={s.connection_count}")
+
+    # ── VPN Server configs ─────────────────────────────────────────────────────
+    for s in servers:
+        section(f"VPN Server config: {s.name}")
+        try:
+            cfg = fb.vpn_server.server_config(s.name)
+            row("enabled", cfg.enabled)
+            row("port", cfg.port)
+            row("ip_start", cfg.ip_start or "—")
+            row("ip_end", cfg.ip_end or "—")
+            if cfg.conf_openvpn:
+                row("cipher", cfg.conf_openvpn.cipher)
+                row("use_tcp", cfg.conf_openvpn.use_tcp)
+            if cfg.conf_pptp:
+                row("mppe", cfg.conf_pptp.mppe)
+            if cfg.conf_wireguard:
+                row("mtu", cfg.conf_wireguard.mtu)
+            if cfg.conf_ipsec:
+                row("ike_version", cfg.conf_ipsec.ike_version)
+        except FreeboxError as e:
+            print(f"  (unavailable: {e})")
+
+    # ── VPN Users ──────────────────────────────────────────────────────────────
+    section("VPN Users")
+    try:
+        users = fb.vpn_server.users()
+        if not users:
+            print("  (none)")
+        for u in users:
+            wg = f"  keepalive={u.conf_wireguard.keepalive}" if u.conf_wireguard else ""
+            row(u.login, f"type={u.type:<10}  ip={u.ip_reservation or '—':<16}  password_set={u.password_set}{wg}")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── VPN IP Pool ────────────────────────────────────────────────────────────
+    section("VPN IP Pool")
+    try:
+        pool = fb.vpn_server.ip_pool()
+        row("range", f"{pool.ip_start} – {pool.ip_end}")
+        if pool.reservations:
+            for r in pool.reservations:
+                row(f"  {r.login}", r.ip)
+        else:
+            print("  (no reservations)")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── Active VPN connections ─────────────────────────────────────────────────
+    section("Active VPN connections")
+    try:
+        conns = fb.vpn_server.connections()
+        if not conns:
+            print("  (none)")
+        for c in conns:
+            row(c.id, f"vpn={c.vpn}  user={c.user}  src={c.src_ip}  rx={c.rx_bytes}B  tx={c.tx_bytes}B")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── VPN Client configs ─────────────────────────────────────────────────────
+    section("VPN Client configurations")
+    try:
+        configs = fb.vpn_client.configs()
+        if not configs:
+            print("  (none)")
+        for cfg in configs:
+            row(cfg.id, f"type={cfg.type:<10}  active={cfg.active}  desc={cfg.description!r}")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── VPN Client status ──────────────────────────────────────────────────────
+    section("VPN Client status")
+    try:
+        status = fb.vpn_client.status()
+        row("enabled", status.enabled)
+        row("state", status.state)
+        row("active_vpn", status.active_vpn or "—")
+        row("type", status.type or "—")
+        row("last_error", status.last_error)
+        if status.stats:
+            row("rate_up", f"{status.stats.rate_up} B/s")
+            row("rate_down", f"{status.stats.rate_down} B/s")
+            row("bytes_up", status.stats.bytes_up)
+            row("bytes_down", status.stats.bytes_down)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── VPN Client log ─────────────────────────────────────────────────────────
+    section("VPN Client log (last 5 lines)")
+    try:
+        log = fb.vpn_client.log()
+        lines = [ln for ln in log.splitlines() if ln.strip()]
+        for line in lines[-5:]:
+            print(f"  {line}")
+        if not lines:
+            print("  (empty)")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()

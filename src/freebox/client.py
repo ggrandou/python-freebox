@@ -17,6 +17,7 @@ from freebox.lan import Lan
 from freebox.sfp import Sfp
 from freebox.switch import Switch
 from freebox.system import System
+from freebox.vpn import VpnClient, VpnServer
 from freebox.wifi import Wifi
 
 _DEFAULT_HOST = "mafreebox.freebox.fr"
@@ -117,6 +118,16 @@ class Freebox:
         return System(self)
 
     @property
+    def vpn_server(self) -> VpnServer:
+        """Access the VPN Server API."""
+        return VpnServer(self)
+
+    @property
+    def vpn_client(self) -> VpnClient:
+        """Access the VPN Client API."""
+        return VpnClient(self)
+
+    @property
     def wifi(self) -> Wifi:
         """Access the Wi-Fi API."""
         return Wifi(self)
@@ -144,6 +155,22 @@ class Freebox:
 
     def delete(self, path: str, **kwargs: Any) -> Any:
         return self._request("DELETE", path, **kwargs)
+
+    def get_text(self, path: str) -> str:
+        """Send an authenticated GET and return the raw response text.
+
+        Used for endpoints that return plain text rather than JSON (e.g. VPN
+        client configuration file download).
+        """
+        headers = {}
+        if self._auth.session_token:
+            headers["X-Fbx-App-Auth"] = self._auth.session_token
+        resp = self._http.get(self._url(path), headers=headers)
+        try:
+            resp.raise_for_status()
+        except Exception as exc:
+            raise FreeboxError(str(exc)) from exc
+        return resp.text
 
     def events(self, events: list[str]) -> EventStream:
         """Return a WebSocket event stream subscribed to the given event names.
