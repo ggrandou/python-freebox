@@ -72,6 +72,7 @@ STEERING_CONFIG_DATA = {"steering_level": 2}
 
 GLOBAL_STATE_DATA = {
     "state": "enabled",
+    "power_saving_capability": "unsupported_box_model",
     "expected_phys": [
         {"band": "2d4g", "phy_id": 0, "detected": True},
         {"band": "5g",   "phy_id": 1, "detected": True},
@@ -257,6 +258,7 @@ class TestWifiGlobalState:
     def test_fields(self):
         s = WifiGlobalState._from_dict(GLOBAL_STATE_DATA)
         assert s.state == "enabled"
+        assert s.power_saving_capability == "unsupported_box_model"
         assert len(s.expected_phys) == 2
         assert s.expected_phys[0].band == "2d4g"
         assert s.expected_phys[1].band == "5g"
@@ -264,6 +266,7 @@ class TestWifiGlobalState:
     def test_defaults(self):
         s = WifiGlobalState._from_dict({})
         assert s.state == ""
+        assert s.power_saving_capability == ""
         assert s.expected_phys == []
 
 
@@ -611,16 +614,12 @@ class TestWifi:
         assert sc.steering_level == 1
 
     def test_state(self, fb, httpx_mock):
-        httpx_mock.add_response(url=f"{API}/wifi/state/", json=api_ok([GLOBAL_STATE_DATA]))
-        states = fb.wifi.state()
-        assert len(states) == 1
-        assert isinstance(states[0], WifiGlobalState)
-        assert states[0].state == "enabled"
-        assert len(states[0].expected_phys) == 2
-
-    def test_state_empty(self, fb, httpx_mock):
-        httpx_mock.add_response(url=f"{API}/wifi/state/", json=api_ok([]))
-        assert fb.wifi.state() == []
+        httpx_mock.add_response(url=f"{API}/wifi/state/", json=api_ok(GLOBAL_STATE_DATA))
+        s = fb.wifi.state()
+        assert isinstance(s, WifiGlobalState)
+        assert s.state == "enabled"
+        assert s.power_saving_capability == "unsupported_box_model"
+        assert len(s.expected_phys) == 2
 
     def test_aps(self, fb, httpx_mock):
         httpx_mock.add_response(url=f"{API}/wifi/ap/", json=api_ok([AP_DATA]))

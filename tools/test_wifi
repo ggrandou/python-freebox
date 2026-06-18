@@ -63,10 +63,11 @@ def main() -> None:
     # ── Global state ───────────────────────────────────────────────────────────
     section("Wi-Fi global state")
     try:
-        for s in fb.wifi.state():
-            row("state", s.state)
-            for phy in s.expected_phys:
-                row(f"  phy {phy.phy_id} ({phy.band})", "detected" if phy.detected else "missing")
+        s = fb.wifi.state()
+        row("state", s.state)
+        row("power_saving_capability", s.power_saving_capability)
+        for phy in s.expected_phys:
+            row(f"  phy {phy.phy_id} ({phy.band})", "detected" if phy.detected else "missing")
     except FreeboxError as e:
         print(f"  (unavailable: {e})")
 

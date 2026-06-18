@@ -56,12 +56,14 @@ class WifiGlobalState:
     """Wi-Fi global state."""
 
     state: str
+    power_saving_capability: str
     expected_phys: list[ExpectedPhy] = field(default_factory=list)
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> WifiGlobalState:
         return cls(
             state=d.get("state", ""),
+            power_saving_capability=d.get("power_saving_capability", ""),
             expected_phys=[ExpectedPhy._from_dict(p) for p in d.get("expected_phys", [])],
         )
 
@@ -514,15 +516,15 @@ class Wifi:
 
     # ── Global state ───────────────────────────────────────────────────────────
 
-    def state(self) -> list[WifiGlobalState]:
+    def state(self) -> WifiGlobalState:
         """Return the Wi-Fi global state."""
-        return [WifiGlobalState._from_dict(s) for s in self._client.get("wifi/state/")]
+        return WifiGlobalState._from_dict(self._client.get("wifi/state/"))
 
     # ── Access Points ──────────────────────────────────────────────────────────
 
     def aps(self) -> list[WifiAp]:
         """Return the list of Wi-Fi access points."""
-        return [WifiAp._from_dict(ap) for ap in self._client.get("wifi/ap/")]
+        return [WifiAp._from_dict(ap) for ap in self._client.get("wifi/ap/") or []]
 
     def ap(self, ap_id: int) -> WifiAp:
         """Return the Wi-Fi access point with the given id."""
@@ -534,11 +536,11 @@ class Wifi:
 
     def ap_allowed_channel_combs(self, ap_id: int) -> list[WifiAllowedComb]:
         """Return allowed channel combinations for the given AP."""
-        return [WifiAllowedComb._from_dict(c) for c in self._client.get(f"wifi/ap/{ap_id}/allowed_channel_comb")]
+        return [WifiAllowedComb._from_dict(c) for c in self._client.get(f"wifi/ap/{ap_id}/allowed_channel_comb") or []]
 
     def ap_stations(self, ap_id: int) -> list[WifiStation]:
         """Return the list of stations currently associated to the given AP."""
-        return [WifiStation._from_dict(s) for s in self._client.get(f"wifi/ap/{ap_id}/stations/")]
+        return [WifiStation._from_dict(s) for s in self._client.get(f"wifi/ap/{ap_id}/stations/") or []]
 
     def ap_station(self, ap_id: int, mac: str) -> WifiStation:
         """Return a specific station associated to the given AP."""
@@ -548,16 +550,16 @@ class Wifi:
         """Return channel survey history for the given AP since *timestamp*."""
         return [
             WifiApChannelSurveyData._from_dict(s)
-            for s in self._client.get(f"wifi/ap/{ap_id}/channel_survey_history/{timestamp}")
+            for s in self._client.get(f"wifi/ap/{ap_id}/channel_survey_history/{timestamp}") or []
         ]
 
     def ap_neighbors(self, ap_id: int) -> list[WifiNeighbor]:
         """Return Wi-Fi neighbours detected by the given AP."""
-        return [WifiNeighbor._from_dict(n) for n in self._client.get(f"wifi/ap/{ap_id}/neighbors/")]
+        return [WifiNeighbor._from_dict(n) for n in self._client.get(f"wifi/ap/{ap_id}/neighbors/") or []]
 
     def ap_channel_usage(self, ap_id: int) -> list[WifiChannelUsage]:
         """Return per-channel usage statistics for the given AP."""
-        return [WifiChannelUsage._from_dict(c) for c in self._client.get(f"wifi/ap/{ap_id}/channel_usage/")]
+        return [WifiChannelUsage._from_dict(c) for c in self._client.get(f"wifi/ap/{ap_id}/channel_usage/") or []]
 
     def restart_ap(self, ap_id: int) -> None:
         """Restart the given AP (it will be briefly unavailable)."""
@@ -571,7 +573,7 @@ class Wifi:
 
     def bss_list(self) -> list[WifiBss]:
         """Return the list of Wi-Fi BSSes."""
-        return [WifiBss._from_dict(b) for b in self._client.get("wifi/bss/")]
+        return [WifiBss._from_dict(b) for b in self._client.get("wifi/bss/") or []]
 
     def bss(self, bss_id: str) -> WifiBss:
         """Return the Wi-Fi BSS with the given id."""
@@ -598,7 +600,7 @@ class Wifi:
 
     def mac_filters(self) -> list[WifiMacFilter]:
         """Return the list of Wi-Fi MAC filters."""
-        return [WifiMacFilter._from_dict(f) for f in self._client.get("wifi/mac_filter/")]
+        return [WifiMacFilter._from_dict(f) for f in self._client.get("wifi/mac_filter/") or []]
 
     def mac_filter(self, filter_id: str) -> WifiMacFilter:
         """Return the Wi-Fi MAC filter with the given id."""
