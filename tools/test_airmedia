@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+"""Test the AirMedia streaming API against a real Freebox.
+
+Usage:
+    tools/test_airmedia [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<20} {value}")
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    section("AirMedia config")
+    try:
+        cfg = fb.airmedia.config()
+        row("enabled", cfg.enabled)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("AirMedia receivers")
+    try:
+        receivers = fb.airmedia.receivers()
+        if not receivers:
+            print("  (none)")
+        for r in receivers:
+            caps = ", ".join(k for k, v in r.capabilities.items() if v) or "(none)"
+            print(f"\n  {r.name!r}")
+            row("password_protected", r.password_protected)
+            row("capabilities", caps)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()

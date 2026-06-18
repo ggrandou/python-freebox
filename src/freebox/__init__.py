@@ -1,3 +1,4 @@
+from freebox.airmedia import AirMedia, AirMediaConfig, AirMediaReceiver
 from freebox.auth import Auth, AuthorizationStatus
 from freebox.call import Call, CallAccount, CallEntry, VoicemailEntry
 from freebox.client import Freebox
@@ -137,6 +138,10 @@ from freebox.exceptions import (
 __all__ = [
     # Client
     "Freebox",
+    # AirMedia
+    "AirMedia",
+    "AirMediaConfig",
+    "AirMediaReceiver",
     # Auth
     "Auth",
     "AuthorizationStatus",

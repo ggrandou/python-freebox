@@ -65,10 +65,10 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route                                  | Function | Tested   |
 | -------- | -------------------------------------- | -------- | :------: |
-| GET      | `/airmedia/config/`                    | —        | —        |
-| PUT      | `/airmedia/config/`                    | —        | —        |
-| GET      | `/airmedia/receivers/`                 | —        | —        |
-| POST     | `/airmedia/receviers/{receiver_name}/` | —        | —        |
+| GET      | `/airmedia/config/`                      | `fb.airmedia.config()`                              | ✓        |
+| PUT      | `/airmedia/config/`                      | `fb.airmedia.set_config(enabled)`                   | —        |
+| GET      | `/airmedia/receivers/`                   | `fb.airmedia.receivers()`                           | ✓        |
+| POST     | `/airmedia/receivers/{receiver_name}/`   | `fb.airmedia.send(name, action, media_type, media)` | —        |
 
 ## Call / Voicemail
 
