@@ -196,18 +196,18 @@ Legend: ✓ = done · — = not done yet
 
 ## Firewall
 
-| Method   | Route                    | Function | Tested   |
-| -------- | ------------------------ | -------- | :------: |
-| GET      | `/fw/dmz/`               | —        | —        |
-| PUT      | `/fw/dmz/`               | —        | —        |
-| GET      | `/fw/incoming/`          | —        | —        |
-| GET      | `/fw/incoming/{port_id}` | —        | —        |
-| PUT      | `/fw/incoming/{port_id}` | —        | —        |
-| GET      | `/fw/redir/`             | —        | —        |
-| GET      | `/fw/redir/{redir_id}`   | —        | —        |
-| POST     | `/fw/redir/`             | —        | —        |
-| PUT      | `/fw/redir/{redir_id}`   | —        | —        |
-| DELETE   | `/fw/redir/{redir_id}`   | —        | —        |
+| Method   | Route                    | Function                                               | Tested   |
+| -------- | ------------------------ | ------------------------------------------------------ | :------: |
+| GET      | `/fw/dmz/`               | `fb.firewall.dmz()`                                    | ✓        |
+| PUT      | `/fw/dmz/`               | `fb.firewall.set_dmz()`                                | —        |
+| GET      | `/fw/incoming/`          | `fb.firewall.incoming_ports()`                         | ✓        |
+| GET      | `/fw/incoming/{port_id}` | `fb.firewall.incoming_port(port_id)`                   | —        |
+| PUT      | `/fw/incoming/{port_id}` | `fb.firewall.set_incoming_port(port_id, ...)`          | —        |
+| GET      | `/fw/redir/`             | `fb.firewall.port_forwardings()`                       | ✓        |
+| GET      | `/fw/redir/{redir_id}`   | `fb.firewall.port_forwarding(redir_id)`                | —        |
+| POST     | `/fw/redir/`             | `fb.firewall.add_port_forwarding(...)`                 | —        |
+| PUT      | `/fw/redir/{redir_id}`   | `fb.firewall.set_port_forwarding(redir_id, ...)`       | —        |
+| DELETE   | `/fw/redir/{redir_id}`   | `fb.firewall.delete_port_forwarding(redir_id)`         | —        |
 
 ## Freeplug
 

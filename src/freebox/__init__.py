@@ -8,6 +8,7 @@ from freebox.dhcp import (
     DhcpStaticLease,
 )
 from freebox.dhcpv6 import Dhcpv6, Dhcpv6Config
+from freebox.firewall import DmzConfig, Firewall, IncomingPort, PortForwarding
 from freebox.lan import (
     Lan,
     LanConfig,
@@ -130,6 +131,11 @@ __all__ = [
     # DHCPv6
     "Dhcpv6",
     "Dhcpv6Config",
+    # Firewall
+    "Firewall",
+    "DmzConfig",
+    "PortForwarding",
+    "IncomingPort",
     # LAN
     "Lan",
     "LanConfig",

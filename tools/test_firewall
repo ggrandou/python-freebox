@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+"""Test the Firewall API against a real Freebox.
+
+Usage:
+    tools/test_firewall [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from freebox import Firewall, Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<30} {value}")
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    fw: Firewall = fb.firewall
+
+    section("DMZ configuration")
+    try:
+        dmz = fw.dmz()
+        row("enabled", dmz.enabled)
+        row("ip", dmz.ip or "(none)")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("Port forwarding rules")
+    try:
+        rules = fw.port_forwardings()
+        if not rules:
+            print("  (no rules)")
+        for r in rules:
+            print(f"\n  [{r.id}] {r.ip_proto.upper()} WAN {r.wan_port_start}-{r.wan_port_end}"
+                  f" → {r.lan_ip}:{r.lan_port}")
+            row("enabled", r.enabled)
+            row("src_ip", r.src_ip)
+            row("comment", r.comment or "(none)")
+            row("hostname", r.hostname or "(none)")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("Incoming port bindings")
+    try:
+        ports = fw.incoming_ports()
+        if not ports:
+            print("  (none)")
+        for p in ports:
+            print(f"\n  [{p.id}]")
+            row("type", p.type)
+            row("in_port", p.in_port)
+            row("enabled", p.enabled)
+            row("active", p.active)
+            row("netns", p.netns)
+            row("range", f"{p.min_port}–{p.max_port}")
+            row("readonly", p.readonly)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()
