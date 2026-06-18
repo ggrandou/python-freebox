@@ -282,12 +282,12 @@ Requires the `profile` (or legacy `parental`) permission — grant it from the F
 
 ## Network Share (AFP / Samba)
 
-| Method   | Route              | Function | Tested   |
-| -------- | ------------------ | -------- | :------: |
-| GET      | `/netshare/afp/`   | —        | —        |
-| PUT      | `/netshare/afp/`   | —        | —        |
-| GET      | `/netshare/samba/` | —        | —        |
-| PUT      | `/netshare/samba/` | —        | —        |
+| Method   | Route              | Function                    | Tested   |
+| -------- | ------------------ | --------------------------- | :------: |
+| GET      | `/netshare/afp/`   | `fb.netshare.afp()`         | ✓        |
+| PUT      | `/netshare/afp/`   | `fb.netshare.set_afp()`     | —        |
+| GET      | `/netshare/samba/` | `fb.netshare.samba()`       | ✓        |
+| PUT      | `/netshare/samba/` | `fb.netshare.set_samba()`   | —        |
 
 ## Notifications
 

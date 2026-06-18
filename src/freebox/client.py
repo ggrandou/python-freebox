@@ -14,6 +14,7 @@ from freebox.freeplug import Freeplug
 from freebox.ftp import Ftp
 from freebox.lcd import Lcd
 from freebox.netcontrol import NetControl
+from freebox.netshare import NetShare
 from freebox.dhcpv6 import Dhcpv6
 from freebox.discovery import DiscoveryInfo, discover_http, ssl_context
 from freebox.events import EventStream
@@ -126,6 +127,11 @@ class Freebox:
     def netcontrol(self) -> NetControl:
         """Access the Network Control (parental filter) API."""
         return NetControl(self)
+
+    @property
+    def netshare(self) -> NetShare:
+        """Access the Network Share (Samba / AFP) API."""
+        return NetShare(self)
 
     @property
     def dhcpv6(self) -> Dhcpv6:
