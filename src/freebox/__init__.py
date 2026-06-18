@@ -1,4 +1,5 @@
 from freebox.airmedia import AirMedia, AirMediaConfig, AirMediaReceiver
+from freebox.fs import FileInfo, Fs, FsLsResult, FsTask
 from freebox.downloads import (
     DhtStats,
     DlBtConfig,
@@ -156,6 +157,11 @@ from freebox.exceptions import (
 __all__ = [
     # Client
     "Freebox",
+    # File System
+    "Fs",
+    "FileInfo",
+    "FsTask",
+    "FsLsResult",
     # AirMedia
     "AirMedia",
     "AirMediaConfig",

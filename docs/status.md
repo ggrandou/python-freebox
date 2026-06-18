@@ -164,25 +164,25 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route                 | Function | Tested   |
 | -------- | --------------------- | -------- | :------: |
-| GET      | `/fs/ls/{path}`       | —        | —        |
-| GET      | `/fs/info/{path}`     | —        | —        |
-| POST     | `/fs/info`            | —        | —        |
-| GET      | `/fs/tasks/`          | —        | —        |
-| GET      | `/fs/tasks/{id}`      | —        | —        |
-| GET      | `/fs/tasks/{id}/hash` | —        | —        |
-| PUT      | `/fs/tasks/{id}`      | —        | —        |
-| DELETE   | `/fs/tasks/{id}`      | —        | —        |
-| POST     | `/fs/mkdir/`          | —        | —        |
-| POST     | `/fs/mv/`             | —        | —        |
-| POST     | `/fs/cp/`             | —        | —        |
-| POST     | `/fs/rm/`             | —        | —        |
-| POST     | `/fs/rename/`         | —        | —        |
-| POST     | `/fs/hash/`           | —        | —        |
-| POST     | `/fs/extract/`        | —        | —        |
-| POST     | `/fs/archive/`        | —        | —        |
-| POST     | `/fs/repair/`         | —        | —        |
-| POST     | `/fs/cat/`            | —        | —        |
-| GET      | `/dl/{path}`          | —        | —        |
+| GET      | `/fs/ls/{path}`       | `fb.fs.ls(path)` | ✓      |
+| GET      | `/fs/info/{path}`     | `fb.fs.info(path)` | ✓    |
+| POST     | `/fs/info`            | `fb.fs.batch_info(paths)` | — |
+| GET      | `/fs/tasks/`          | `fb.fs.tasks()` | ✓        |
+| GET      | `/fs/tasks/{id}`      | `fb.fs.task(id)` | —       |
+| GET      | `/fs/tasks/{id}/hash` | `fb.fs.task_hash(id)` | — |
+| PUT      | `/fs/tasks/{id}`      | `fb.fs.update_task(id, state)` | — |
+| DELETE   | `/fs/tasks/{id}`      | `fb.fs.delete_task(id)` | — |
+| POST     | `/fs/mkdir/`          | `fb.fs.mkdir(parent, dirname)` | — |
+| POST     | `/fs/mv/`             | `fb.fs.mv(files, dst)` | — |
+| POST     | `/fs/cp/`             | `fb.fs.cp(files, dst)` | — |
+| POST     | `/fs/rm/`             | `fb.fs.rm(files)` | —    |
+| POST     | `/fs/rename/`         | `fb.fs.rename(src, dst)` | — |
+| POST     | `/fs/hash/`           | `fb.fs.hash(src, hash_type)` | — |
+| POST     | `/fs/extract/`        | `fb.fs.extract(src, dst)` | — |
+| POST     | `/fs/archive/`        | `fb.fs.archive(files, dst)` | — |
+| POST     | `/fs/repair/`         | `fb.fs.repair(src)` | — |
+| POST     | `/fs/cat/`            | `fb.fs.cat(files, dst)` | — |
+| GET      | `/dl/{path}`          | `fb.fs.download(path)` | — |
 
 ## File Upload (WebSocket)
 

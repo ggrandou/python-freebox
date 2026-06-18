@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+"""Test the File System API against a real Freebox.
+
+Usage:
+    tools/test_fs [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+Read-only: lists root directory contents and active tasks.
+"""
+from __future__ import annotations
+
+import base64
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+ROOT_PATH = base64.b64encode(b"/").decode()
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<28} {value}")
+
+
+def fmt_size(n: int) -> str:
+    for unit in ("B", "KB", "MB", "GB", "TB"):
+        if abs(n) < 1024:
+            return f"{n:.1f} {unit}"
+        n /= 1024
+    return f"{n:.1f} PB"
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    section("Root directory listing")
+    try:
+        result = fb.fs.ls(ROOT_PATH, remove_hidden=True)
+        if not result.entries:
+            print("  (empty)")
+        for entry in result.entries:
+            size_str = fmt_size(entry.size) if entry.type == "file" else ""
+            print(f"  [{entry.type:6}] {entry.name:<30} {size_str}")
+        if result.cursor:
+            print(f"  … (more entries, cursor={result.cursor!r})")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("Subdirectory listing (first entry, if any)")
+    try:
+        result = fb.fs.ls(ROOT_PATH, remove_hidden=True, only_folder=True, limit=1)
+        if result.entries:
+            first = result.entries[0]
+            print(f"  Listing: {first.path_decoded!r}")
+            sub = fb.fs.ls(first.path, remove_hidden=True, limit=10)
+            if not sub.entries:
+                print("  (empty)")
+            for entry in sub.entries:
+                size_str = fmt_size(entry.size) if entry.type == "file" else ""
+                print(f"    [{entry.type:6}] {entry.name:<28} {size_str}")
+            if sub.cursor:
+                print(f"  … (more entries)")
+        else:
+            print("  (no subdirectories at root)")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("File info (root)")
+    try:
+        info = fb.fs.info(ROOT_PATH)
+        row("name", repr(info.name))
+        row("type", info.type)
+        row("path", info.path_decoded)
+        row("foldercount", info.foldercount)
+        row("filecount", info.filecount)
+        row("modification", info.modification)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("Active FS tasks")
+    try:
+        tasks = fb.fs.tasks()
+        if not tasks:
+            print("  (none)")
+        for t in tasks:
+            pct = f"{t.progress / 100:.1f}%"
+            print(f"\n  [{t.id}] {t.type}  {t.state}  {pct}")
+            row("from", t.from_path or "(n/a)")
+            row("to", t.to or "(n/a)")
+            row("nfiles", f"{t.nfiles_done}/{t.nfiles}")
+            row("rate", fmt_size(t.rate) + "/s")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()
