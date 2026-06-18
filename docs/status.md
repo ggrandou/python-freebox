@@ -391,17 +391,17 @@ Requires the `profile` (or legacy `parental`) permission — grant it from the F
 
 | Method   | Route                              | Function | Tested   |
 | -------- | ---------------------------------- | -------- | :------: |
-| GET      | `/storage/config/`                 | —        | —        |
-| PUT      | `/storage/config/`                 | —        | —        |
-| GET      | `/storage/disk/`                   | —        | —        |
-| GET      | `/storage/disk/{id}`               | —        | —        |
-| PUT      | `/storage/disk/{id}`               | —        | —        |
-| PUT      | `/storage/disk/{id}/format/`       | —        | —        |
-| GET      | `/storage/disk/{disk_id}/fsadvice` | —        | —        |
-| GET      | `/storage/partition/`              | —        | —        |
-| GET      | `/storage/partition/{id}`          | —        | —        |
-| PUT      | `/storage/partition/{id}`          | —        | —        |
-| PUT      | `/storage/partition/{id}/check/`   | —        | —        |
+| GET      | `/storage/config/`                 | `fb.storage.config()`                                    | ✓        |
+| PUT      | `/storage/config/`                 | `fb.storage.set_config()`                                | —        |
+| GET      | `/storage/disk/`                   | `fb.storage.disks()`                                     | ✓        |
+| GET      | `/storage/disk/{id}`               | `fb.storage.disk(id)`                                    | —        |
+| PUT      | `/storage/disk/{id}`               | `fb.storage.set_disk_state(id, state)`                   | —        |
+| PUT      | `/storage/disk/{id}/format/`       | `fb.storage.format_disk(id, table_type, fs_type, label)` | —        |
+| GET      | `/storage/disk/{disk_id}/fsadvice` | `fb.storage.fsadvice(disk_id)`                           | —        |
+| GET      | `/storage/partition/`              | `fb.storage.partitions()`                                | ✓        |
+| GET      | `/storage/partition/{id}`          | `fb.storage.partition(id)`                               | —        |
+| PUT      | `/storage/partition/{id}`          | `fb.storage.set_partition_state(id, state)`              | —        |
+| PUT      | `/storage/partition/{id}/check/`   | `fb.storage.check_partition(id)`                         | —        |
 
 ## Switch
 

@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+"""Test the storage (disks and partitions) API against a real Freebox.
+
+Usage:
+    tools/test_storage [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<24} {value}")
+
+
+def fmt_bytes(n: int) -> str:
+    for unit in ("B", "KB", "MB", "GB", "TB"):
+        if n < 1024:
+            return f"{n:.1f} {unit}"
+        n /= 1024
+    return f"{n:.1f} PB"
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    section("Storage config")
+    try:
+        cfg = fb.storage.config()
+        row("ext power mgmt", cfg.external_pm_enabled)
+        row("spindown idle (min)", cfg.external_pm_idle_before_spindown)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("Disks")
+    try:
+        disks = fb.storage.disks()
+        if not disks:
+            print("  (none)")
+        for disk in disks:
+            print(f"\n  [{disk.id}] {disk.type} — {disk.model or '(no model)'}")
+            row("state", disk.state)
+            row("connector", disk.connector)
+            row("total", fmt_bytes(disk.total_bytes))
+            row("table_type", disk.table_type)
+            row("temp (°C)", disk.temp or "(n/a)")
+            row("spinning", disk.spinning)
+            row("serial", disk.serial or "(n/a)")
+            if disk.partitions:
+                print(f"  partitions ({len(disk.partitions)}):")
+                for p in disk.partitions:
+                    print(f"    [{p.id}] {p.label!r}  {p.fstype}  {p.state}")
+                    print(f"      mount : {p.path_decoded or '(n/a)'}")
+                    print(f"      used  : {fmt_bytes(p.used_bytes)} / {fmt_bytes(p.total_bytes)}")
+                    print(f"      free  : {fmt_bytes(p.free_bytes)}")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("Partitions (flat list)")
+    try:
+        parts = fb.storage.partitions()
+        if not parts:
+            print("  (none)")
+        for p in parts:
+            print(f"  [{p.id}] {p.label!r}  disk={p.disk_id}  {p.fstype}  {p.state}")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()

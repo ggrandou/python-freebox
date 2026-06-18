@@ -109,6 +109,14 @@ from freebox.system import (
     SystemSensor,
 )
 from freebox.sharelink import ShareLink, ShareLinks
+from freebox.storage import (
+    DiskPartition,
+    FsAdvice,
+    OperationProgress,
+    Storage,
+    StorageConfig,
+    StorageDisk,
+)
 from freebox.tftp import Tftp, TftpConfig
 from freebox.update import Update, UpdateStatus, UpgradeState
 from freebox.upnpigd import UpnpIgd, UpnpIgdConfig, UpnpIgdRedir
@@ -257,6 +265,13 @@ __all__ = [
     # Share Links
     "ShareLinks",
     "ShareLink",
+    # Storage
+    "Storage",
+    "StorageConfig",
+    "StorageDisk",
+    "DiskPartition",
+    "OperationProgress",
+    "FsAdvice",
     # TFTP
     "Tftp",
     "TftpConfig",

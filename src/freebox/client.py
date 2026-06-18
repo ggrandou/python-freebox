@@ -28,6 +28,7 @@ from freebox.sfp import Sfp
 from freebox.switch import Switch
 from freebox.system import System
 from freebox.sharelink import ShareLinks
+from freebox.storage import Storage
 from freebox.tftp import Tftp
 from freebox.update import Update
 from freebox.upnpigd import UpnpIgd
@@ -180,6 +181,11 @@ class Freebox:
     def system(self) -> System:
         """Access the System API."""
         return System(self)
+
+    @property
+    def storage(self) -> Storage:
+        """Access the Storage (disks and partitions) API."""
+        return Storage(self)
 
     @property
     def sharelinks(self) -> ShareLinks:
