@@ -436,12 +436,12 @@ Legend: ✓ = done · — = not done yet
 
 ## UPnP IGD
 
-| Method   | Route                 | Function | Tested   |
-| -------- | --------------------- | -------- | :------: |
-| GET      | `/upnpigd/config/`    | —        | —        |
-| PUT      | `/upnpigd/config/`    | —        | —        |
-| GET      | `/upnpigd/redir/`     | —        | —        |
-| DELETE   | `/upnpigd/redir/{id}` | —        | —        |
+| Method   | Route                 | Function                               | Tested   |
+| -------- | --------------------- | -------------------------------------- | :------: |
+| GET      | `/upnpigd/config/`    | `fb.upnpigd.config()`                  | ✓        |
+| PUT      | `/upnpigd/config/`    | `fb.upnpigd.set_config()`              | —        |
+| GET      | `/upnpigd/redir/`     | `fb.upnpigd.redirs()`                  | ✓        |
+| DELETE   | `/upnpigd/redir/{id}` | `fb.upnpigd.delete_redir(id)`          | —        |
 
 ## Virtual Machines
 

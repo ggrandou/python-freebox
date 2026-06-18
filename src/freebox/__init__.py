@@ -102,6 +102,7 @@ from freebox.system import (
     SystemSensor,
 )
 from freebox.update import Update, UpdateStatus, UpgradeState
+from freebox.upnpigd import UpnpIgd, UpnpIgdConfig, UpnpIgdRedir
 from freebox.discovery import DiscoveryInfo, discover, discover_http, discover_mdns, discover_remote_port
 from freebox.events import EventStream, Notification
 from freebox.exceptions import (
@@ -221,6 +222,10 @@ __all__ = [
     "Update",
     "UpdateStatus",
     "UpgradeState",
+    # UPnP IGD
+    "UpnpIgd",
+    "UpnpIgdConfig",
+    "UpnpIgdRedir",
     # Discovery
     "DiscoveryInfo",
     "discover",

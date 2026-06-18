@@ -21,6 +21,7 @@ from freebox.sfp import Sfp
 from freebox.switch import Switch
 from freebox.system import System
 from freebox.update import Update
+from freebox.upnpigd import UpnpIgd
 from freebox.vpn import VpnClient, VpnServer
 from freebox.wifi import Wifi
 
@@ -140,6 +141,11 @@ class Freebox:
     def update(self) -> Update:
         """Access the Update API."""
         return Update(self)
+
+    @property
+    def upnpigd(self) -> UpnpIgd:
+        """Access the UPnP IGD API."""
+        return UpnpIgd(self)
 
     @property
     def vpn_server(self) -> VpnServer:
