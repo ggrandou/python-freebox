@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""Test the download manager API against a real Freebox.
+
+Usage:
+    tools/test_downloads [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+Read-only: lists tasks, stats, config, feeds.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<28} {value}")
+
+
+def fmt_rate(bps: int) -> str:
+    if bps == 0:
+        return "unlimited"
+    for unit in ("B/s", "KB/s", "MB/s"):
+        if bps < 1024:
+            return f"{bps:.1f} {unit}"
+        bps //= 1024
+    return f"{bps} GB/s"
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    section("Download stats")
+    try:
+        s = fb.downloads.stats()
+        row("tasks total", s.nb_tasks)
+        row("tasks downloading", s.nb_tasks_downloading)
+        row("tasks seeding", s.nb_tasks_seeding)
+        row("tasks done", s.nb_tasks_done)
+        row("tasks error", s.nb_tasks_error)
+        row("rx_rate", fmt_rate(s.rx_rate))
+        row("tx_rate", fmt_rate(s.tx_rate))
+        row("throttling_mode", s.throttling_mode)
+        row("nb_rss_items_unread", s.nb_rss_items_unread)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("Download tasks")
+    try:
+        tasks = fb.downloads.list()
+        if not tasks:
+            print("  (none)")
+        for t in tasks[:5]:
+            pct = f"{t.rx_pct / 100:.1f}%"
+            print(f"\n  [{t.id}] {t.type}  {t.status}  {pct}")
+            row("name", t.name[:50])
+            row("download_dir", t.download_dir_decoded[:40] or "(n/a)")
+        if len(tasks) > 5:
+            print(f"\n  … {len(tasks) - 5} more tasks")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("Download config")
+    try:
+        cfg = fb.downloads.config()
+        row("max_downloading_tasks", cfg.max_downloading_tasks)
+        row("download_dir", cfg.download_dir_decoded[:40] or "(n/a)")
+        row("use_watch_dir", cfg.use_watch_dir)
+        row("throttling.mode", cfg.throttling.mode)
+        row("bt.max_peers", cfg.bt.max_peers)
+        row("bt.stop_ratio", f"{cfg.bt.stop_ratio / 100:.2f}x")
+        row("news.server", cfg.news.server or "(none)")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("RSS feeds")
+    try:
+        feeds = fb.downloads.feeds()
+        if not feeds:
+            print("  (none)")
+        for f in feeds:
+            print(f"\n  [{f.id}] {f.title!r}  {f.status}")
+            row("url", f.url[:50])
+            row("unread", f.nb_unread)
+            row("auto_download", f.auto_download)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()

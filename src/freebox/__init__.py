@@ -1,4 +1,22 @@
 from freebox.airmedia import AirMedia, AirMediaConfig, AirMediaReceiver
+from freebox.downloads import (
+    DhtStats,
+    DlBtConfig,
+    DlFeedConfig,
+    DlNewsConfig,
+    DlRate,
+    DlThrottlingConfig,
+    DownloadBlacklistEntry,
+    DownloadConfig,
+    DownloadFeed,
+    DownloadFeedItem,
+    DownloadFile,
+    DownloadPeer,
+    DownloadStats,
+    DownloadTask,
+    DownloadTracker,
+    Downloads,
+)
 from freebox.auth import Auth, AuthorizationStatus
 from freebox.call import Call, CallAccount, CallEntry, VoicemailEntry
 from freebox.client import Freebox
@@ -142,6 +160,23 @@ __all__ = [
     "AirMedia",
     "AirMediaConfig",
     "AirMediaReceiver",
+    # Downloads
+    "Downloads",
+    "DownloadTask",
+    "DownloadStats",
+    "DownloadConfig",
+    "DownloadFile",
+    "DownloadTracker",
+    "DownloadPeer",
+    "DownloadBlacklistEntry",
+    "DownloadFeed",
+    "DownloadFeedItem",
+    "DlRate",
+    "DlThrottlingConfig",
+    "DlNewsConfig",
+    "DlBtConfig",
+    "DlFeedConfig",
+    "DhtStats",
     # Auth
     "Auth",
     "AuthorizationStatus",

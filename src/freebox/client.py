@@ -9,6 +9,7 @@ import httpx
 from freebox.airmedia import AirMedia
 from freebox.auth import Auth, raise_for_error_code
 from freebox.call import Call
+from freebox.downloads import Downloads
 from freebox.connection import Connection
 from freebox.dhcp import Dhcp
 from freebox.firewall import Firewall
@@ -97,6 +98,11 @@ class Freebox:
     def permissions(self) -> dict[str, bool]:
         """App permissions granted by the user."""
         return self._auth.permissions
+
+    @property
+    def downloads(self) -> Downloads:
+        """Access the Download manager API."""
+        return Downloads(self)
 
     @property
     def airmedia(self) -> AirMedia:

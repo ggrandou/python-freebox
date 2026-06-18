@@ -126,39 +126,39 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route                                                 | Function | Tested   |
 | -------- | ----------------------------------------------------- | -------- | :------: |
-| GET      | `/downloads/`                                         | —        | —        |
-| GET      | `/downloads/{id}`                                     | —        | —        |
-| PUT      | `/downloads/{id}`                                     | —        | —        |
-| DELETE   | `/downloads/{id}`                                     | —        | —        |
-| DELETE   | `/downloads/{id}/erase`                               | —        | —        |
-| POST     | `/downloads/add`                                      | —        | —        |
-| GET      | `/downloads/config/`                                  | —        | —        |
-| PUT      | `/downloads/config/`                                  | —        | —        |
-| PUT      | `/downloads/throttling`                               | —        | —        |
-| GET      | `/downloads/stats`                                    | —        | —        |
-| GET      | `/downloads/{id}/log`                                 | —        | —        |
-| GET      | `/downloads/{task_id}/files`                          | —        | —        |
-| PUT      | `/downloads/{task_id}/files/{file_id}`                | —        | —        |
-| GET      | `/downloads/{task_id}/blacklist`                      | —        | —        |
-| POST     | `/downloads/blacklist`                                | —        | —        |
-| DELETE   | `/downloads/{task_id}/blacklist/empty`                | —        | —        |
-| GET      | `/downloads/{task_id}/trackers`                       | —        | —        |
-| POST     | `/downloads/{task_id}/trackers`                       | —        | —        |
-| PUT      | `/downloads/{task_id}/trackers/{announce}`            | —        | —        |
-| DELETE   | `/downloads/{task_id}/trackers/{announce}`            | —        | —        |
-| GET      | `/downloads/{task_id}/peers`                          | —        | —        |
-| GET      | `/downloads/{task_id}/pieces`                         | —        | —        |
-| GET      | `/downloads/feeds/`                                   | —        | —        |
-| GET      | `/downloads/feeds/{id}`                               | —        | —        |
-| POST     | `/downloads/feeds/`                                   | —        | —        |
-| PUT      | `/downloads/feeds/{id}`                               | —        | —        |
-| DELETE   | `/downloads/feeds/{id}`                               | —        | —        |
-| POST     | `/downloads/feeds/fetch`                              | —        | —        |
-| POST     | `/downloads/feeds/{id}/fetch`                         | —        | —        |
-| GET      | `/downloads/feeds/{feed_id}/items/`                   | —        | —        |
-| POST     | `/downloads/feeds/{feed_id}/items/{item_id}/download` | —        | —        |
-| PUT      | `/downloads/feeds/{feed_id}/items/{item_id}`          | —        | —        |
-| POST     | `/downloads/feeds/{feed_id}/items/mark_all_as_read`   | —        | —        |
+| GET      | `/downloads/`                                         | `fb.downloads.list()`                              | ✓        |
+| GET      | `/downloads/{id}`                                     | `fb.downloads.get(id)`                             | —        |
+| PUT      | `/downloads/{id}`                                     | `fb.downloads.update(id, **kwargs)`                | —        |
+| DELETE   | `/downloads/{id}`                                     | `fb.downloads.delete(id)`                          | —        |
+| DELETE   | `/downloads/{id}/erase`                               | `fb.downloads.erase(id)`                           | —        |
+| POST     | `/downloads/add`                                      | `fb.downloads.add(url)` / `add_file(content)`      | —        |
+| GET      | `/downloads/config/`                                  | `fb.downloads.config()`                            | ✓        |
+| PUT      | `/downloads/config/`                                  | `fb.downloads.set_config(**kwargs)`                | —        |
+| PUT      | `/downloads/throttling`                               | `fb.downloads.set_throttling(mode)`                | —        |
+| GET      | `/downloads/stats`                                    | `fb.downloads.stats()`                             | ✓        |
+| GET      | `/downloads/{id}/log`                                 | `fb.downloads.log(id)`                             | —        |
+| GET      | `/downloads/{task_id}/files`                          | `fb.downloads.files(task_id)`                      | —        |
+| PUT      | `/downloads/{task_id}/files/{file_id}`                | `fb.downloads.set_file_priority(task_id, file_id)` | —        |
+| GET      | `/downloads/{task_id}/blacklist`                      | `fb.downloads.blacklist(task_id)`                  | —        |
+| POST     | `/downloads/blacklist`                                | `fb.downloads.add_blacklist_entry(host)`           | —        |
+| DELETE   | `/downloads/{task_id}/blacklist/empty`                | `fb.downloads.clear_blacklist(task_id)`            | —        |
+| GET      | `/downloads/{task_id}/trackers`                       | `fb.downloads.trackers(task_id)`                   | —        |
+| POST     | `/downloads/{task_id}/trackers`                       | `fb.downloads.add_tracker(task_id, announce)`      | —        |
+| PUT      | `/downloads/{task_id}/trackers/{announce}`            | `fb.downloads.update_tracker(task_id, announce)`   | —        |
+| DELETE   | `/downloads/{task_id}/trackers/{announce}`            | `fb.downloads.delete_tracker(task_id, announce)`   | —        |
+| GET      | `/downloads/{task_id}/peers`                          | `fb.downloads.peers(task_id)`                      | —        |
+| GET      | `/downloads/{task_id}/pieces`                         | `fb.downloads.pieces(task_id)`                     | —        |
+| GET      | `/downloads/feeds/`                                   | `fb.downloads.feeds()`                             | ✓        |
+| GET      | `/downloads/feeds/{id}`                               | `fb.downloads.get_feed(id)`                        | —        |
+| POST     | `/downloads/feeds/`                                   | `fb.downloads.add_feed(url)`                       | —        |
+| PUT      | `/downloads/feeds/{id}`                               | `fb.downloads.update_feed(id, **kwargs)`           | —        |
+| DELETE   | `/downloads/feeds/{id}`                               | `fb.downloads.delete_feed(id)`                     | —        |
+| POST     | `/downloads/feeds/fetch`                              | `fb.downloads.fetch_all_feeds()`                   | —        |
+| POST     | `/downloads/feeds/{id}/fetch`                         | `fb.downloads.fetch_feed(id)`                      | —        |
+| GET      | `/downloads/feeds/{feed_id}/items/`                   | `fb.downloads.feed_items(feed_id)`                 | —        |
+| POST     | `/downloads/feeds/{feed_id}/items/{item_id}/download` | `fb.downloads.download_feed_item(feed_id, item_id)`| —        |
+| PUT      | `/downloads/feeds/{feed_id}/items/{item_id}`          | `fb.downloads.update_feed_item(feed_id, item_id)`  | —        |
+| POST     | `/downloads/feeds/{feed_id}/items/mark_all_as_read`   | `fb.downloads.mark_feed_items_read(feed_id)`       | —        |
 
 ## File System
 
