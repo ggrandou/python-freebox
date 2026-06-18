@@ -91,7 +91,7 @@ Legend: ✓ = done · — = not done yet
 
 | Method | Route                                                    | Function | Tested |
 | ------ | -------------------------------------------------------- | -------- | :----: |
-| GET    | `/contact/`                                              | `fb.contact.list()` | —   |
+| GET    | `/contact/`                                              | `fb.contact.list()` | ✓   |
 | GET    | `/contact/{id}`                                          | `fb.contact.get(id)` | —  |
 | POST   | `/contact/`                                              | `fb.contact.create(**kwargs)` | — |
 | PUT    | `/contact/{id}`                                          | `fb.contact.update(id, **kwargs)` | — |
