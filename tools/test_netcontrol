@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+"""Test the Network Control (parental filter) API against a real Freebox.
+
+Usage:
+    tools/test_netcontrol [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+# NOTE: This API requires the 'profile' (or legacy 'parental') permission.
+# Grant it from the Freebox settings: Administration → Applications.
+
+DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "Custom"]
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<28} {value}")
+
+
+def fmt_time(seconds: int) -> str:
+    h, m = divmod(seconds, 3600)
+    return f"{h:02d}:{m:02d}"
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    section("Migration status")
+    try:
+        migrated = fb.netcontrol.migration_status()
+        row("default_mode_migrated", migrated)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("Network controls (all profiles)")
+    try:
+        controls = fb.netcontrol.controls()
+        if not controls:
+            print("  (none)")
+        for nc in controls:
+            print(f"\n  Profile [{nc.profile_id}]")
+            row("current_mode", nc.current_mode)
+            row("rule_mode", nc.rule_mode)
+            row("override", nc.override)
+            if nc.override:
+                row("override_mode", nc.override_mode)
+                row("override_until", nc.override_until or "unlimited")
+            row("next_change", nc.next_change or "none")
+            row("macs", ", ".join(nc.macs) or "(none)")
+            row("cdayranges", ", ".join(nc.cdayranges) or "(none)")
+
+            try:
+                rules = fb.netcontrol.rules(nc.profile_id)
+                if rules:
+                    print(f"  Rules ({len(rules)}):")
+                    for r in rules:
+                        days = [DAYS[i] for i, active in enumerate(r.weekdays) if active]
+                        print(f"    [{r.id}] {r.name!r:20s}  {r.mode:<8}"
+                              f"  {fmt_time(r.start_time)}–{fmt_time(r.end_time)}"
+                              f"  {','.join(days)}"
+                              f"  {'✓' if r.enabled else '✗'}")
+            except FreeboxError as e:
+                print(f"    rules: (unavailable: {e})")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()

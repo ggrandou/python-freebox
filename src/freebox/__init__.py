@@ -12,6 +12,7 @@ from freebox.firewall import DmzConfig, Firewall, IncomingPort, PortForwarding
 from freebox.freeplug import Freeplug, FreeplugNetwork, FreeplugNode
 from freebox.ftp import Ftp, FtpConfig
 from freebox.lcd import Lcd, LcdConfig
+from freebox.netcontrol import NetControl, NetworkControl, NetworkControlRule
 from freebox.lan import (
     Lan,
     LanConfig,
@@ -151,6 +152,10 @@ __all__ = [
     # LCD
     "Lcd",
     "LcdConfig",
+    # Network Control
+    "NetControl",
+    "NetworkControl",
+    "NetworkControlRule",
     # LAN
     "Lan",
     "LanConfig",

@@ -265,18 +265,20 @@ Legend: ✓ = done · — = not done yet
 
 ## Network Control (Parental Filter)
 
-| Method   | Route                                           | Function | Tested   |
-| -------- | ----------------------------------------------- | -------- | :------: |
-| GET      | `/network_control`                              | —        | —        |
-| GET      | `/network_control/{profile_id}`                 | —        | —        |
-| GET      | `/network_control/{profile_id}/rules`           | —        | —        |
-| GET      | `/network_control/{profile_id}/rules/{rule_id}` | —        | —        |
-| POST     | `/network_control/{profile_id}/rules/`          | —        | —        |
-| PUT      | `/network_control/{profile_id}`                 | —        | —        |
-| PUT      | `/network_control/{id}/rules/{rule_id}`         | —        | —        |
-| DELETE   | `/network_control/{id}/rules/{rule_id}`         | —        | —        |
-| GET      | `/network_control/migrate`                      | —        | —        |
-| POST     | `/network_control/migrate`                      | —        | —        |
+Requires the `profile` (or legacy `parental`) permission — grant it from the Freebox settings: Administration → Applications.
+
+| Method   | Route                                           | Function                                         | Tested   |
+| -------- | ----------------------------------------------- | ------------------------------------------------ | :------: |
+| GET      | `/network_control`                              | `fb.netcontrol.controls()`                       | ✓        |
+| GET      | `/network_control/{profile_id}`                 | `fb.netcontrol.control(profile_id)`              | —        |
+| PUT      | `/network_control/{profile_id}`                 | `fb.netcontrol.set_control(profile_id, ...)`     | —        |
+| GET      | `/network_control/migrate`                      | `fb.netcontrol.migration_status()`               | ✓        |
+| POST     | `/network_control/migrate`                      | `fb.netcontrol.migrate()`                        | —        |
+| GET      | `/network_control/{profile_id}/rules`           | `fb.netcontrol.rules(profile_id)`                | —        |
+| GET      | `/network_control/{profile_id}/rules/{rule_id}` | `fb.netcontrol.rule(profile_id, rule_id)`        | —        |
+| POST     | `/network_control/{profile_id}/rules/`          | `fb.netcontrol.add_rule(profile_id, ...)`        | —        |
+| PUT      | `/network_control/{id}/rules/{rule_id}`         | `fb.netcontrol.set_rule(profile_id, rule_id, ...)` | —      |
+| DELETE   | `/network_control/{id}/rules/{rule_id}`         | `fb.netcontrol.delete_rule(profile_id, rule_id)` | —       |
 
 ## Network Share (AFP / Samba)
 
