@@ -353,10 +353,10 @@ Legend: ✓ = done · — = not done yet
 
 ## RRD Stats
 
-| Method   | Route   | Function | Tested   |
-| -------- | ------- | -------- | :------: |
-| GET      | `/rrd/` | —        | —        |
-| POST     | `/rrd/` | —        | —        |
+| Method   | Route   | Function         | Tested   |
+| -------- | ------- | ---------------- | :------: |
+| GET      | `/rrd/` | `fb.rrd.fetch()` | ✓        |
+| POST     | `/rrd/` | `fb.rrd.fetch()` | —        |
 
 ## SFP
 

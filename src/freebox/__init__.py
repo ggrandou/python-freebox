@@ -90,6 +90,7 @@ from freebox.vpn import (
     VpnClient,
     VpnServer,
 )
+from freebox.rrd import Rrd, RRDDatabase, RRDResult, RRDSample
 from freebox.system import (
     System,
     SystemConfig,
@@ -194,6 +195,11 @@ __all__ = [
     "VPNClientWireGuardIP",
     "VPNClientStats",
     "VPNClientStatus",
+    # RRD
+    "Rrd",
+    "RRDDatabase",
+    "RRDResult",
+    "RRDSample",
     # System
     "System",
     "SystemConfig",
