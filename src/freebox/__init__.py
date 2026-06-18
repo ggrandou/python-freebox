@@ -107,6 +107,7 @@ from freebox.system import (
     SystemModelInfo,
     SystemSensor,
 )
+from freebox.sharelink import ShareLink, ShareLinks
 from freebox.tftp import Tftp, TftpConfig
 from freebox.update import Update, UpdateStatus, UpgradeState
 from freebox.upnpigd import UpnpIgd, UpnpIgdConfig, UpnpIgdRedir
@@ -247,6 +248,9 @@ __all__ = [
     "SystemFan",
     "SystemModelInfo",
     "SystemSensor",
+    # Share Links
+    "ShareLinks",
+    "ShareLink",
     # TFTP
     "Tftp",
     "TftpConfig",

@@ -373,12 +373,12 @@ Requires the `profile` (or legacy `parental`) permission — grant it from the F
 
 ## Share Links
 
-| Method   | Route                 | Function | Tested   |
-| -------- | --------------------- | -------- | :------: |
-| GET      | `/share_link/`        | —        | —        |
-| GET      | `/share_link/{token}` | —        | —        |
-| POST     | `/share_link/`        | —        | —        |
-| DELETE   | `/share_link/{token}` | —        | —        |
+| Method   | Route                 | Function                          | Tested   |
+| -------- | --------------------- | --------------------------------- | :------: |
+| GET      | `/share_link/`        | `fb.sharelinks.list()`            | ✓        |
+| GET      | `/share_link/{token}` | `fb.sharelinks.get(token)`        | —        |
+| POST     | `/share_link/`        | `fb.sharelinks.create(path)`      | —        |
+| DELETE   | `/share_link/{token}` | `fb.sharelinks.delete(token)`     | —        |
 
 ## Standby
 
