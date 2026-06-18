@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+"""Test the Home Automation API against a real Freebox.
+
+Usage:
+    tools/test_home [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+Only read-only operations are performed.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<28} {value}")
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    section("Home adapters")
+    try:
+        adapters = fb.home.adapters()
+        if not adapters:
+            print("  (none)")
+        for a in adapters:
+            type_name = a.type.name if a.type else "?"
+            row(f"adapter {a.id} ({type_name})", f"label={a.label!r}  status={a.status}")
+            if a.props:
+                row("  props", a.props)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("Home nodes")
+    try:
+        nodes = fb.home.nodes()
+        if not nodes:
+            print("  (none)")
+        for n in nodes:
+            type_name = n.type.name if n.type else "?"
+            row(f"node {n.id}", f"label={n.label!r}  status={n.status}  type={type_name}")
+            for ep in n.show_endpoints:
+                ui_display = ep.ui.display if ep.ui else "?"
+                row(f"  ep {ep.id} ({ep.ep_type})", f"{ep.label!r}  access={ep.access}  display={ui_display}  value={ep.value!r}")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    section("Home tileset")
+    try:
+        tiles = fb.home.tileset()
+        if not tiles:
+            print("  (none)")
+        for t in tiles:
+            group_label = t.group.label if t.group else "?"
+            row(f"tile node={t.node_id}", f"label={t.label!r}  type={t.type}  group={group_label!r}")
+            for td in t.data:
+                row(f"  ep {td.ep_id}", f"{td.label!r}  value={td.value!r}  type={td.value_type}")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()

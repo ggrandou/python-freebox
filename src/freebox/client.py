@@ -9,6 +9,7 @@ import httpx
 from freebox.airmedia import AirMedia
 from freebox.contact import Contact
 from freebox.fs import Fs
+from freebox.home import Home
 from freebox.vm import VirtualMachines
 from freebox.auth import Auth, raise_for_error_code
 from freebox.call import Call
@@ -106,6 +107,11 @@ class Freebox:
     def vm(self) -> VirtualMachines:
         """Access the Virtual Machine API."""
         return VirtualMachines(self)
+
+    @property
+    def home(self) -> Home:
+        """Access the Home Automation API."""
+        return Home(self)
 
     @property
     def contact(self) -> Contact:

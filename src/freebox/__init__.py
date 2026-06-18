@@ -1,4 +1,19 @@
 from freebox.airmedia import AirMedia, AirMediaConfig, AirMediaReceiver
+from freebox.home import (
+    Home,
+    HomeAdapter,
+    HomeAdapterType,
+    HomeEndpointValue,
+    HomeNode,
+    HomeNodeEndpoint,
+    HomeNodeEndpointUi,
+    HomeNodeGroup,
+    HomeNodeType,
+    HomePairingStep,
+    HomePairingStepField,
+    HomeTile,
+    HomeTileData,
+)
 from freebox.vm import Vm, VirtualMachines, VmDiskInfo, VmDiskTask, VmDistribution, VmSystemInfo
 from freebox.contact import (
     Contact,
@@ -174,6 +189,20 @@ from freebox.exceptions import (
 __all__ = [
     # Client
     "Freebox",
+    # Home Automation
+    "Home",
+    "HomeAdapter",
+    "HomeAdapterType",
+    "HomeEndpointValue",
+    "HomeNode",
+    "HomeNodeEndpoint",
+    "HomeNodeEndpointUi",
+    "HomeNodeGroup",
+    "HomeNodeType",
+    "HomePairingStep",
+    "HomePairingStepField",
+    "HomeTile",
+    "HomeTileData",
     # Virtual Machines
     "VirtualMachines",
     "Vm",

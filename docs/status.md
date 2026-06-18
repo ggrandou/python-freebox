@@ -228,19 +228,19 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route                                     | Function | Tested   |
 | -------- | ----------------------------------------- | -------- | :------: |
-| GET      | `/home/nodes`                             | —        | —        |
-| GET      | `/home/nodes/{id}`                        | —        | —        |
-| PUT      | `/home/nodes/{id}`                        | —        | —        |
-| DELETE   | `/home/nodes/{id}`                        | —        | —        |
-| GET      | `/home/endpoints/{node_id}/{endpoint_id}` | —        | —        |
-| PUT      | `/home/endpoints/{node_id}/{endpoint_id}` | —        | —        |
-| GET      | `/home/adapters`                          | —        | —        |
-| GET      | `/home/adapters/{id}`                     | —        | —        |
-| PUT      | `/home/adapters/{id}`                     | —        | —        |
-| GET      | `/home/pairing/{adapter_id}`              | —        | —        |
-| POST     | `/home/pairing/{adapter_id}`              | —        | —        |
-| GET      | `/home/tileset/all`                       | —        | —        |
-| GET      | `/home/tileset/{node_id}`                 | —        | —        |
+| GET      | `/home/nodes`                             | `fb.home.nodes()`                           | —        |
+| GET      | `/home/nodes/{id}`                        | `fb.home.node(id)`                          | —        |
+| PUT      | `/home/nodes/{id}`                        | `fb.home.set_node(id, label)`               | —        |
+| DELETE   | `/home/nodes/{id}`                        | `fb.home.delete_node(id)`                   | —        |
+| GET      | `/home/endpoints/{node_id}/{endpoint_id}` | `fb.home.endpoint_value(node_id, ep_id)`    | —        |
+| PUT      | `/home/endpoints/{node_id}/{endpoint_id}` | `fb.home.set_endpoint_value(node_id, ep_id, value)` | —  |
+| GET      | `/home/adapters`                          | `fb.home.adapters()`                        | —        |
+| GET      | `/home/adapters/{id}`                     | `fb.home.adapter(id)`                       | —        |
+| PUT      | `/home/adapters/{id}`                     | `fb.home.set_adapter(id, ...)`              | —        |
+| GET      | `/home/pairing/{adapter_id}`              | `fb.home.pairing_step(adapter_id)`          | —        |
+| POST     | `/home/pairing/{adapter_id}`              | `fb.home.start_pairing(adapter_id)` / `next_pairing_step()` / `stop_pairing()` | — |
+| GET      | `/home/tileset/all`                       | `fb.home.tileset()`                         | —        |
+| GET      | `/home/tileset/{node_id}`                 | `fb.home.node_tileset(node_id)`             | —        |
 
 ## Language
 
