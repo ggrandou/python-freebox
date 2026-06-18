@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+"""List registered notification targets on the Freebox.
+
+Usage:
+    tools/test_notif [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<28} {value}")
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    section("Notification targets")
+    try:
+        targets = fb.notif.get_targets()
+        if not targets:
+            print("  (no registered targets)")
+        for t in targets:
+            header = f"[{t.id}]" if t.id else t.name
+            print(f"\n  {header}")
+            if t.id:
+                row("name", t.name)
+            row("type", t.type)
+            row("message_type", t.message_type)
+            row("api_url", t.api_url)
+            row("last_use", t.last_use)
+            row("subscriptions", ", ".join(t.subscriptions) or "(none)")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()

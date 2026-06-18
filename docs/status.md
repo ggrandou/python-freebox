@@ -291,11 +291,11 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route                 | Function | Tested   |
 | -------- | --------------------- | -------- | :------: |
-| GET      | `/notif/targets`      | —        | —        |
-| GET      | `/notif/targets/{id}` | —        | —        |
-| POST     | `/notif/targets/`     | —        | —        |
-| PUT      | `/notif/targets/{id}` | —        | —        |
-| DELETE   | `/notif/targets/{id}` | —        | —        |
+| GET      | `/notif/targets`      | `Notif.get_targets`  | ✓        |
+| GET      | `/notif/targets/{id}` | `Notif.get_target`   | —        |
+| POST     | `/notif/targets/`     | `Notif.create_target` | —       |
+| PUT      | `/notif/targets/{id}` | `Notif.update_target` | —       |
+| DELETE   | `/notif/targets/{id}` | `Notif.delete_target` | —       |
 
 ## Player
 

@@ -14,6 +14,7 @@ from freebox.discovery import DiscoveryInfo, discover_http, ssl_context
 from freebox.events import EventStream
 from freebox.exceptions import AuthenticationError, FreeboxError, TokenRevoked
 from freebox.lan import Lan
+from freebox.notif import Notif
 from freebox.rrd import Rrd
 from freebox.sfp import Sfp
 from freebox.switch import Switch
@@ -103,6 +104,11 @@ class Freebox:
     def lan(self) -> Lan:
         """Access the LAN API."""
         return Lan(self)
+
+    @property
+    def notif(self) -> Notif:
+        """Access the Notification API."""
+        return Notif(self)
 
     @property
     def rrd(self) -> Rrd:

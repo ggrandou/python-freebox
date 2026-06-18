@@ -90,6 +90,7 @@ from freebox.vpn import (
     VpnClient,
     VpnServer,
 )
+from freebox.notif import Notif, NotificationTarget
 from freebox.rrd import Rrd, RRDDatabase, RRDResult, RRDSample
 from freebox.system import (
     System,
@@ -195,6 +196,9 @@ __all__ = [
     "VPNClientWireGuardIP",
     "VPNClientStats",
     "VPNClientStatus",
+    # Notifications
+    "Notif",
+    "NotificationTarget",
     # RRD
     "Rrd",
     "RRDDatabase",
