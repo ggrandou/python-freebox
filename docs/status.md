@@ -211,11 +211,11 @@ Legend: ✓ = done · — = not done yet
 
 ## Freeplug
 
-| Method   | Route                   | Function | Tested   |
-| -------- | ----------------------- | -------- | :------: |
-| GET      | `/freeplug/`            | —        | —        |
-| GET      | `/freeplug/{id}/`       | —        | —        |
-| POST     | `/freeplug/{id}/reset/` | —        | —        |
+| Method   | Route                   | Function                       | Tested   |
+| -------- | ----------------------- | ------------------------------ | :------: |
+| GET      | `/freeplug/`            | `fb.freeplug.networks()`       | ✓        |
+| GET      | `/freeplug/{id}/`       | `fb.freeplug.node(id)`         | —        |
+| POST     | `/freeplug/{id}/reset/` | `fb.freeplug.reset(id)`        | —        |
 
 ## FTP
 

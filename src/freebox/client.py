@@ -10,6 +10,7 @@ from freebox.auth import Auth, raise_for_error_code
 from freebox.connection import Connection
 from freebox.dhcp import Dhcp
 from freebox.firewall import Firewall
+from freebox.freeplug import Freeplug
 from freebox.ftp import Ftp
 from freebox.lcd import Lcd
 from freebox.dhcpv6 import Dhcpv6
@@ -103,6 +104,11 @@ class Freebox:
     def firewall(self) -> Firewall:
         """Access the Firewall API."""
         return Firewall(self)
+
+    @property
+    def freeplug(self) -> Freeplug:
+        """Access the Freeplug (CPL) API."""
+        return Freeplug(self)
 
     @property
     def ftp(self) -> Ftp:
