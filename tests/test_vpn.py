@@ -11,8 +11,6 @@ from freebox import (
     VPNConnection,
     VPNIPPool,
     VPNIPReservation,
-    VPNIPSecAuthMode,
-    VPNIPSecConfig,
     VPNOpenVpnConfig,
     VPNPPTPConfig,
     VPNServer,

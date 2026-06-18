@@ -95,13 +95,13 @@ class VPNIPSecConfig:
     """IPSec-specific VPN server configuration."""
 
     ike_version: int
-    auth_modes: list[VPNIPSecAuthMode] = field(default_factory=list)
+    auth_modes: list[str] = field(default_factory=list)
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> VPNIPSecConfig:
         return cls(
             ike_version=d.get("ike_version", 0),
-            auth_modes=[VPNIPSecAuthMode._from_dict(m) for m in d.get("auth_modes", [])],
+            auth_modes=d.get("auth_modes", []),
         )
 
 
@@ -408,7 +408,7 @@ class VpnServer:
     def servers(self) -> list[VPNServer]:
         """Return the list of VPN servers and their current state."""
         result = self._client.get("vpn/")
-        return [VPNServer._from_dict(s) for s in result]
+        return [VPNServer._from_dict(s) for s in (result or [])]
 
     def server_config(self, vpn_id: str) -> VPNServerConfig:
         """Return the configuration of the given VPN server."""
@@ -421,7 +421,7 @@ class VpnServer:
     def users(self) -> list[VPNUser]:
         """Return the list of VPN users."""
         result = self._client.get("vpn/user/")
-        return [VPNUser._from_dict(u) for u in result]
+        return [VPNUser._from_dict(u) for u in (result or [])]
 
     def user(self, login: str) -> VPNUser:
         """Return the VPN user with the given login."""
@@ -447,7 +447,7 @@ class VpnServer:
     def connections(self) -> list[VPNConnection]:
         """Return the list of active VPN server connections."""
         result = self._client.get("vpn/connection/")
-        return [VPNConnection._from_dict(c) for c in result]
+        return [VPNConnection._from_dict(c) for c in (result or [])]
 
     def delete_connection(self, connection_id: str) -> None:
         """Close the active VPN connection with the given id."""
@@ -482,7 +482,7 @@ class VpnClient:
     def configs(self) -> list[VPNClientConfig]:
         """Return the list of VPN client configurations."""
         result = self._client.get("vpn_client/config/")
-        return [VPNClientConfig._from_dict(c) for c in result]
+        return [VPNClientConfig._from_dict(c) for c in (result or [])]
 
     def config(self, config_id: str) -> VPNClientConfig:
         """Return the VPN client configuration with the given id."""
