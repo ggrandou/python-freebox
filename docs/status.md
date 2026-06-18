@@ -529,8 +529,8 @@ Requires the `profile` (or legacy `parental`) permission — grant it from the F
 | PUT      | `/wifi/bss/{id}`                                   | `fb.wifi.set_bss(id, ...)`                      | —        |
 | GET      | `/wifi/bss/{id}/default`                           | `fb.wifi.bss_default(id)`                       | —        |
 | GET      | `/wifi/bss/{id}/diag`                              | `fb.wifi.bss_diag(id)`                          | —        |
-| GET      | `/wifi/bss/{id}/mlo/config`                        | `fb.wifi.bss_mlo_config(id)`                    | —        |
-| GET      | `/wifi/bss/{id}/mlo/allowed_comb`                  | `fb.wifi.bss_mlo_allowed_combs(id)`             | —        |
+| GET      | `/wifi/bss/{id}/mlo/config`                        | `fb.wifi.bss_mlo_config(id)`                    | ✓        |
+| GET      | `/wifi/bss/{id}/mlo/allowed_comb`                  | `fb.wifi.bss_mlo_allowed_combs(id)`             | ✓        |
 | GET      | `/wifi/mac_filter/`                                | `fb.wifi.mac_filters()`                         | ✓        |
 | GET      | `/wifi/mac_filter/{filter_id}`                     | `fb.wifi.mac_filter(filter_id)`                 | —        |
 | POST     | `/wifi/mac_filter/`                                | `fb.wifi.add_mac_filter(mac, type)`             | —        |
@@ -538,22 +538,22 @@ Requires the `profile` (or legacy `parental`) permission — grant it from the F
 | DELETE   | `/wifi/mac_filter/{filter_id}`                     | `fb.wifi.delete_mac_filter(filter_id)`          | —        |
 | GET      | `/wifi/planning/`                                  | `fb.wifi.planning()`                            | ✓        |
 | PUT      | `/wifi/planning/`                                  | `fb.wifi.set_planning()`                        | —        |
-| GET      | `/wifi/wps/config/`                                | `fb.wifi.wps_config()`                          | —        |
+| GET      | `/wifi/wps/config/`                                | `fb.wifi.wps_config()`                          | ✓        |
 | PUT      | `/wifi/wps/config/`                                | `fb.wifi.set_wps_config(...)`                   | —        |
-| GET      | `/wifi/wps/sessions/`                              | `fb.wifi.wps_sessions()`                        | —        |
+| GET      | `/wifi/wps/sessions/`                              | `fb.wifi.wps_sessions()`                        | ✓        |
 | POST     | `/wifi/wps/start/`                                 | `fb.wifi.start_wps(bssid)`                      | —        |
 | DELETE   | `/wifi/wps/sessions/`                              | `fb.wifi.clear_wps_sessions()`                  | —        |
-| GET      | `/wifi/custom_key/`                                | `fb.wifi.custom_keys()`                         | —        |
+| GET      | `/wifi/custom_key/`                                | `fb.wifi.custom_keys()`                         | ✓        |
 | GET      | `/wifi/custom_key/{key_id}`                        | `fb.wifi.custom_key(key_id)`                    | —        |
 | POST     | `/wifi/custom_key/`                                | `fb.wifi.add_custom_key(...)`                   | —        |
 | DELETE   | `/wifi/custom_key/{key_id}`                        | `fb.wifi.delete_custom_key(key_id)`             | —        |
-| GET      | `/wifi/custom_keys/config/`                        | `fb.wifi.custom_keys_config()`                  | —        |
+| GET      | `/wifi/custom_keys/config/`                        | `fb.wifi.custom_keys_config()`                  | ✓        |
 | PUT      | `/wifi/custom_keys/config/`                        | `fb.wifi.set_custom_keys_config(...)`           | —        |
 | GET      | `/wifi/steering/config/`                           | `fb.wifi.steering_config()`                     | ✓        |
 | PUT      | `/wifi/steering/config/`                           | `fb.wifi.set_steering_config()`                 | ✓        |
-| GET      | `/wifi/temp_disable`                               | `fb.wifi.temp_disable_state()`                  | —        |
+| GET      | `/wifi/temp_disable`                               | `fb.wifi.temp_disable_state()`                  | ✓        |
 | POST     | `/wifi/temp_disable`                               | `fb.wifi.temp_disable(duration, keep)`          | —        |
-| GET      | `/wifi/diag`                                       | `fb.wifi.diag()`                                | —        |
+| GET      | `/wifi/diag`                                       | `fb.wifi.diag()`                                | ✓        |
 | POST     | `/wifi/diag`                                       | `fb.wifi.fix_diag(aps, bsss)`                   | —        |
 
 ## Camera
