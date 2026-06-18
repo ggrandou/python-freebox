@@ -388,6 +388,10 @@ class TestDownloadsApi:
         e = fb.downloads.add_blacklist_entry("8.8.8.8", expire=300)
         assert isinstance(e, DownloadBlacklistEntry)
 
+    def test_delete_blacklist_entry(self, fb, httpx_mock):
+        httpx_mock.add_response(url=f"{API}/downloads/blacklist/8.8.8.8", method="DELETE", json=api_ok(None))
+        fb.downloads.delete_blacklist_entry("8.8.8.8")
+
     def test_clear_blacklist(self, fb, httpx_mock):
         httpx_mock.add_response(url=f"{API}/downloads/16/blacklist/empty", method="DELETE", json=api_ok(None))
         fb.downloads.clear_blacklist(16)

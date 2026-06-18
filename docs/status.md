@@ -141,6 +141,7 @@ Legend: ✓ = done · — = not done yet
 | PUT      | `/downloads/{task_id}/files/{file_id}`                | `fb.downloads.set_file_priority(task_id, file_id)` | —        |
 | GET      | `/downloads/{task_id}/blacklist`                      | `fb.downloads.blacklist(task_id)`                  | —        |
 | POST     | `/downloads/blacklist`                                | `fb.downloads.add_blacklist_entry(host)`           | —        |
+| DELETE   | `/downloads/blacklist/{host}`                         | `fb.downloads.delete_blacklist_entry(host)`        | —        |
 | DELETE   | `/downloads/{task_id}/blacklist/empty`                | `fb.downloads.clear_blacklist(task_id)`            | —        |
 | GET      | `/downloads/{task_id}/trackers`                       | `fb.downloads.trackers(task_id)`                   | —        |
 | POST     | `/downloads/{task_id}/trackers`                       | `fb.downloads.add_tracker(task_id, announce)`      | —        |

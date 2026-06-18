@@ -720,6 +720,10 @@ class Downloads:
             self._client.post("downloads/blacklist", json={"host": host, "expire": expire})
         )
 
+    def delete_blacklist_entry(self, host: str) -> None:
+        """Delete a specific entry from the global BitTorrent blacklist."""
+        self._client.delete(f"downloads/blacklist/{host}")
+
     def clear_blacklist(self, task_id: int) -> None:
         """Clear the blacklist for a download task (removes global entries too)."""
         self._client.delete(f"downloads/{task_id}/blacklist/empty")
