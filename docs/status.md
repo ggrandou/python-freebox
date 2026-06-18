@@ -470,28 +470,28 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route                     | Function | Tested   |
 | -------- | ------------------------- | -------- | :------: |
-| GET      | `/vpn_client/config/`     | `fb.vpn_client.configs()` | —        |
+| GET      | `/vpn_client/config/`     | `fb.vpn_client.configs()` | ✓        |
 | GET      | `/vpn_client/config/{id}` | `fb.vpn_client.config(id)` | —        |
 | POST     | `/vpn_client/config/`     | `fb.vpn_client.add_config(...)` | —        |
 | PUT      | `/vpn_client/config/{id}` | `fb.vpn_client.update_config(id, ...)` | —        |
 | DELETE   | `/vpn_client/config/{id}` | `fb.vpn_client.delete_config(id)` | —        |
-| GET      | `/vpn_client/status`      | `fb.vpn_client.status()` | —        |
-| GET      | `/vpn_client/log`         | `fb.vpn_client.log()` | —        |
+| GET      | `/vpn_client/status`      | `fb.vpn_client.status()` | ✓        |
+| GET      | `/vpn_client/log`         | `fb.vpn_client.log()` | ✓        |
 
 ## VPN Server
 
 | Method   | Route                                              | Function | Tested   |
 | -------- | -------------------------------------------------- | -------- | :------: |
-| GET      | `/vpn/`                                            | `fb.vpn_server.servers()` | —        |
-| GET      | `/vpn/{vpn_id}/config/`                            | `fb.vpn_server.server_config(vpn_id)` | —        |
+| GET      | `/vpn/`                                            | `fb.vpn_server.servers()` | ✓        |
+| GET      | `/vpn/{vpn_id}/config/`                            | `fb.vpn_server.server_config(vpn_id)` | ✓        |
 | PUT      | `/vpn/{vpn_id}/config/`                            | `fb.vpn_server.set_server_config(vpn_id, ...)` | —        |
-| GET      | `/vpn/ip_pool/`                                    | `fb.vpn_server.ip_pool()` | —        |
-| GET      | `/vpn/user/`                                       | `fb.vpn_server.users()` | —        |
+| GET      | `/vpn/ip_pool/`                                    | `fb.vpn_server.ip_pool()` | ✓        |
+| GET      | `/vpn/user/`                                       | `fb.vpn_server.users()` | ✓        |
 | GET      | `/vpn/user/{login}`                                | `fb.vpn_server.user(login)` | —        |
 | POST     | `/vpn/user/`                                       | `fb.vpn_server.add_user(login, password, ...)` | —        |
 | PUT      | `/vpn/user/{login}`                                | `fb.vpn_server.update_user(login, ...)` | —        |
 | DELETE   | `/vpn/user/{login}`                                | `fb.vpn_server.delete_user(login)` | —        |
-| GET      | `/vpn/connection/`                                 | `fb.vpn_server.connections()` | —        |
+| GET      | `/vpn/connection/`                                 | `fb.vpn_server.connections()` | ✓        |
 | DELETE   | `/vpn/connection/{id}`                             | `fb.vpn_server.delete_connection(id)` | —        |
 | GET      | `/vpn/download_config/{server_name}/{login}/{fmt}` | `fb.vpn_server.download_config(server, login, fmt)` | —        |
 
