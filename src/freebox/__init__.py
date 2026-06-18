@@ -9,6 +9,7 @@ from freebox.dhcp import (
 )
 from freebox.dhcpv6 import Dhcpv6, Dhcpv6Config
 from freebox.firewall import DmzConfig, Firewall, IncomingPort, PortForwarding
+from freebox.ftp import Ftp, FtpConfig
 from freebox.lan import (
     Lan,
     LanConfig,
@@ -137,6 +138,9 @@ __all__ = [
     "DmzConfig",
     "PortForwarding",
     "IncomingPort",
+    # FTP
+    "Ftp",
+    "FtpConfig",
     # LAN
     "Lan",
     "LanConfig",

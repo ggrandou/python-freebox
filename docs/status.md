@@ -219,10 +219,10 @@ Legend: ✓ = done · — = not done yet
 
 ## FTP
 
-| Method   | Route          | Function | Tested   |
-| -------- | -------------- | -------- | :------: |
-| GET      | `/ftp/config/` | —        | —        |
-| PUT      | `/ftp/config/` | —        | —        |
+| Method   | Route          | Function              | Tested   |
+| -------- | -------------- | --------------------- | :------: |
+| GET      | `/ftp/config/` | `fb.ftp.config()`     | ✓        |
+| PUT      | `/ftp/config/` | `fb.ftp.set_config()` | —        |
 
 ## Home Automation
 
