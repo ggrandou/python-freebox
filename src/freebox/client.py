@@ -13,6 +13,7 @@ from freebox.firewall import Firewall
 from freebox.freeplug import Freeplug
 from freebox.ftp import Ftp
 from freebox.lcd import Lcd
+from freebox.ledstrip import Ledstrip
 from freebox.netcontrol import NetControl
 from freebox.netshare import NetShare
 from freebox.dhcpv6 import Dhcpv6
@@ -122,6 +123,11 @@ class Freebox:
     def lcd(self) -> Lcd:
         """Access the LCD screen API."""
         return Lcd(self)
+
+    @property
+    def ledstrip(self) -> Ledstrip:
+        """Access the LED strip API."""
+        return Ledstrip(self)
 
     @property
     def netcontrol(self) -> NetControl:

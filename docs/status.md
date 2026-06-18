@@ -258,10 +258,13 @@ Legend: ✓ = done · — = not done yet
 
 ## LED Strip
 
-| Method   | Route                | Function | Tested   |
-| -------- | -------------------- | -------- | :------: |
-| GET      | `/ledstrip/status`   | —        | —        |
-| PUT      | `/ledstrip/planning` | —        | —        |
+Only available on models with `has_led_strip = true` in `SystemConfig`.
+
+| Method   | Route                | Function                      | Tested   |
+| -------- | -------------------- | ----------------------------- | :------: |
+| GET      | `/ledstrip/status`   | `fb.ledstrip.status()`        | —        |
+| GET      | `/ledstrip/planning` | `fb.ledstrip.planning()`      | —        |
+| PUT      | `/ledstrip/planning` | `fb.ledstrip.set_planning()`  | —        |
 
 ## Network Control (Parental Filter)
 
