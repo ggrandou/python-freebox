@@ -17,6 +17,7 @@ from freebox.lan import Lan
 from freebox.sfp import Sfp
 from freebox.switch import Switch
 from freebox.system import System
+from freebox.wifi import Wifi
 
 _DEFAULT_HOST = "mafreebox.freebox.fr"
 _API_BASE = "/api/v{version}/"
@@ -114,6 +115,11 @@ class Freebox:
     def system(self) -> System:
         """Access the System API."""
         return System(self)
+
+    @property
+    def wifi(self) -> Wifi:
+        """Access the Wi-Fi API."""
+        return Wifi(self)
 
     def open(self) -> None:
         """Discover the Freebox, register the app if needed, and open a session."""

@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""Report current Freebox Wi-Fi status and configuration.
+
+Usage:
+    tools/test_wifi [freebox_host]
+
+The app token is stored in .freebox_test_token between runs.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from freebox import Freebox
+from freebox.exceptions import FreeboxError
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
+TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+
+
+def section(title: str) -> None:
+    print(f"\n── {title} {'─' * (50 - len(title))}")
+
+
+def row(label: str, value: object) -> None:
+    print(f"  {label:<32} {value}")
+
+
+def main() -> None:
+    print(f"Connecting to {HOST} …")
+
+    fb = Freebox(
+        app_id="fr.freebox.python_test",
+        app_name="python-freebox test",
+        app_version="0.1",
+        device_name="test-client",
+        host=HOST,
+        token_file=TOKEN_FILE,
+    )
+    fb.open()
+
+    d = fb.discovery
+    print(f"  device  : {d.device_name}  ({d.box_model_name})")
+    print(f"  API     : v{d.api_major_version}")
+
+    # ── Global config ──────────────────────────────────────────────────────────
+    section("Wi-Fi global config")
+    try:
+        cfg = fb.wifi.config()
+        row("enabled", cfg.enabled)
+        row("mac_filter_state", cfg.mac_filter_state)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── Steering config ────────────────────────────────────────────────────────
+    section("Wi-Fi steering config")
+    try:
+        sc = fb.wifi.steering_config()
+        row("steering_level", sc.steering_level)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── Global state ───────────────────────────────────────────────────────────
+    section("Wi-Fi global state")
+    try:
+        for s in fb.wifi.state():
+            row("state", s.state)
+            for phy in s.expected_phys:
+                row(f"  phy {phy.phy_id} ({phy.band})", "detected" if phy.detected else "missing")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── Access Points ──────────────────────────────────────────────────────────
+    section("Wi-Fi access points")
+    try:
+        aps = fb.wifi.aps()
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+        fb.close()
+        return
+
+    for ap in aps:
+        state = ap.status.state if ap.status else "?"
+        band  = ap.config.band if ap.config else "?"
+        ch    = ap.status.primary_channel if ap.status else "?"
+        row(f"AP {ap.id} ({ap.name})", f"state={state}  band={band}  channel={ch}")
+
+    # ── Per-AP details ─────────────────────────────────────────────────────────
+    for ap in aps:
+        section(f"AP {ap.id} stations")
+        try:
+            stations = fb.wifi.ap_stations(ap.id)
+            if not stations:
+                print("  (no stations)")
+            for s in stations:
+                row(s.mac, f"hostname={s.hostname or '?'}  signal={s.signal} dB  state={s.state}")
+        except FreeboxError as e:
+            print(f"  (unavailable: {e})")
+
+        section(f"AP {ap.id} neighbors")
+        try:
+            neighbors = fb.wifi.ap_neighbors(ap.id)
+            if not neighbors:
+                print("  (no neighbors)")
+            for n in sorted(neighbors, key=lambda x: x.signal, reverse=True)[:5]:
+                row(n.bssid, f"ssid={n.ssid!r}  band={n.band}  ch={n.channel}  signal={n.signal} dB")
+        except FreeboxError as e:
+            print(f"  (unavailable: {e})")
+
+        section(f"AP {ap.id} channel usage")
+        try:
+            usage = fb.wifi.ap_channel_usage(ap.id)
+            for u in sorted(usage, key=lambda x: x.channel)[:5]:
+                row(f"ch {u.channel} ({u.band})", f"noise={u.noise_level} dB  busy={u.rx_busy_percent}%")
+        except FreeboxError as e:
+            print(f"  (unavailable: {e})")
+
+    # ── BSS ────────────────────────────────────────────────────────────────────
+    section("Wi-Fi BSS")
+    try:
+        for b in fb.wifi.bss_list():
+            ssid  = b.config.ssid if b.config else "?"
+            state = b.status.state if b.status else "?"
+            stas  = b.status.sta_count if b.status else "?"
+            row(b.id, f"ssid={ssid!r}  state={state}  stations={stas}")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── Planning ───────────────────────────────────────────────────────────────
+    section("Wi-Fi planning")
+    try:
+        p = fb.wifi.planning()
+        row("use_planning", p.use_planning)
+        row("resolution", p.resolution)
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    # ── MAC filters ────────────────────────────────────────────────────────────
+    section("Wi-Fi MAC filters")
+    try:
+        filters = fb.wifi.mac_filters()
+        if not filters:
+            print("  (no filters)")
+        for f in filters:
+            row(f.mac, f"type={f.type}  comment={f.comment!r}")
+    except FreeboxError as e:
+        print(f"  (unavailable: {e})")
+
+    fb.close()
+    print()
+
+
+if __name__ == "__main__":
+    main()

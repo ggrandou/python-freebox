@@ -499,39 +499,39 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route                                              | Function | Tested   |
 | -------- | -------------------------------------------------- | -------- | :------: |
-| GET      | `/wifi/config/`                                    | —        | —        |
-| PUT      | `/wifi/config/`                                    | —        | —        |
+| GET      | `/wifi/config/`                                    | `fb.wifi.config()`                              | —        |
+| PUT      | `/wifi/config/`                                    | `fb.wifi.set_config()`                          | —        |
 | GET      | `/wifi/default`                                    | —        | —        |
-| POST     | `/wifi/config/reset/`                              | —        | —        |
-| GET      | `/wifi/state/`                                     | —        | —        |
-| GET      | `/wifi/ap/`                                        | —        | —        |
-| GET      | `/wifi/ap/{id}`                                    | —        | —        |
-| PUT      | `/wifi/ap/{id}`                                    | —        | —        |
+| POST     | `/wifi/config/reset/`                              | `fb.wifi.reset_config()`                        | —        |
+| GET      | `/wifi/state/`                                     | `fb.wifi.state()`                               | —        |
+| GET      | `/wifi/ap/`                                        | `fb.wifi.aps()`                                 | —        |
+| GET      | `/wifi/ap/{id}`                                    | `fb.wifi.ap(id)`                                | —        |
+| PUT      | `/wifi/ap/{id}`                                    | `fb.wifi.set_ap(id, ...)`                       | —        |
 | GET      | `/wifi/ap/{id}/default`                            | —        | —        |
-| GET      | `/wifi/ap/{id}/allowed_channel_comb`               | —        | —        |
-| GET      | `/wifi/ap/{id}/channel_usage/`                     | —        | —        |
-| GET      | `/wifi/ap/{id}/channel_survey_history/{timestamp}` | —        | —        |
-| GET      | `/wifi/ap/{id}/neighbors/`                         | —        | —        |
-| POST     | `/wifi/ap/{id}/neighbors/scan`                     | —        | —        |
-| GET      | `/wifi/ap/{id}/stations/`                          | —        | —        |
-| GET      | `/wifi/ap/{id}/stations/{mac}`                     | —        | —        |
-| POST     | `/wifi/ap/{id}/restart`                            | —        | —        |
+| GET      | `/wifi/ap/{id}/allowed_channel_comb`               | `fb.wifi.ap_allowed_channel_combs(id)`          | —        |
+| GET      | `/wifi/ap/{id}/channel_usage/`                     | `fb.wifi.ap_channel_usage(id)`                  | —        |
+| GET      | `/wifi/ap/{id}/channel_survey_history/{timestamp}` | `fb.wifi.ap_channel_survey_history(id, ts)`     | —        |
+| GET      | `/wifi/ap/{id}/neighbors/`                         | `fb.wifi.ap_neighbors(id)`                      | —        |
+| POST     | `/wifi/ap/{id}/neighbors/scan`                     | `fb.wifi.scan_ap_neighbors(id)`                 | —        |
+| GET      | `/wifi/ap/{id}/stations/`                          | `fb.wifi.ap_stations(id)`                       | —        |
+| GET      | `/wifi/ap/{id}/stations/{mac}`                     | `fb.wifi.ap_station(id, mac)`                   | —        |
+| POST     | `/wifi/ap/{id}/restart`                            | `fb.wifi.restart_ap(id)`                        | —        |
 | GET      | `/wifi/ap/{id}/diag`                               | —        | —        |
 | POST     | `/wifi/ap/{id}/diag`                               | —        | —        |
-| GET      | `/wifi/bss/`                                       | —        | —        |
-| GET      | `/wifi/bss/{id}`                                   | —        | —        |
-| PUT      | `/wifi/bss/{id}`                                   | —        | —        |
+| GET      | `/wifi/bss/`                                       | `fb.wifi.bss_list()`                            | —        |
+| GET      | `/wifi/bss/{id}`                                   | `fb.wifi.bss(id)`                               | —        |
+| PUT      | `/wifi/bss/{id}`                                   | `fb.wifi.set_bss(id, ...)`                      | —        |
 | GET      | `/wifi/bss/{id}/default`                           | —        | —        |
 | GET      | `/wifi/bss/{id}/diag`                              | —        | —        |
 | GET      | `/wifi/bss/{id}/mlo/config`                        | —        | —        |
 | GET      | `/wifi/bss/{id}/mlo/allowed_comb`                  | —        | —        |
-| GET      | `/wifi/mac_filter/`                                | —        | —        |
-| GET      | `/wifi/mac_filter/{filter_id}`                     | —        | —        |
-| POST     | `/wifi/mac_filter/`                                | —        | —        |
-| PUT      | `/wifi/mac_filter/{filter_id}`                     | —        | —        |
-| DELETE   | `/wifi/mac_filter/{filter_id}`                     | —        | —        |
-| GET      | `/wifi/planning/`                                  | —        | —        |
-| PUT      | `/wifi/planning/`                                  | —        | —        |
+| GET      | `/wifi/mac_filter/`                                | `fb.wifi.mac_filters()`                         | —        |
+| GET      | `/wifi/mac_filter/{filter_id}`                     | `fb.wifi.mac_filter(filter_id)`                 | —        |
+| POST     | `/wifi/mac_filter/`                                | `fb.wifi.add_mac_filter(mac, type)`             | —        |
+| PUT      | `/wifi/mac_filter/{filter_id}`                     | `fb.wifi.set_mac_filter(filter_id, ...)`        | —        |
+| DELETE   | `/wifi/mac_filter/{filter_id}`                     | `fb.wifi.delete_mac_filter(filter_id)`          | —        |
+| GET      | `/wifi/planning/`                                  | `fb.wifi.planning()`                            | —        |
+| PUT      | `/wifi/planning/`                                  | `fb.wifi.set_planning()`                        | —        |
 | GET      | `/wifi/wps/config/`                                | —        | —        |
 | PUT      | `/wifi/wps/config/`                                | —        | —        |
 | GET      | `/wifi/wps/sessions/`                              | —        | —        |
@@ -543,8 +543,8 @@ Legend: ✓ = done · — = not done yet
 | DELETE   | `/wifi/custom_key/{key_id}`                        | —        | —        |
 | GET      | `/wifi/custom_keys/config/`                        | —        | —        |
 | PUT      | `/wifi/custom_keys/config/`                        | —        | —        |
-| GET      | `/wifi/steering/config/`                           | —        | —        |
-| PUT      | `/wifi/steering/config/`                           | —        | —        |
+| GET      | `/wifi/steering/config/`                           | `fb.wifi.steering_config()`                     | —        |
+| PUT      | `/wifi/steering/config/`                           | `fb.wifi.set_steering_config()`                 | —        |
 | GET      | `/wifi/temp_disable`                               | —        | —        |
 | POST     | `/wifi/temp_disable`                               | —        | —        |
 | GET      | `/wifi/diag`                                       | —        | —        |
