@@ -1,4 +1,5 @@
 from freebox.airmedia import AirMedia, AirMediaConfig, AirMediaReceiver
+from freebox.vm import Vm, VirtualMachines, VmDiskInfo, VmDiskTask, VmDistribution, VmSystemInfo
 from freebox.contact import (
     Contact,
     ContactAddress,
@@ -165,6 +166,13 @@ from freebox.exceptions import (
 __all__ = [
     # Client
     "Freebox",
+    # Virtual Machines
+    "VirtualMachines",
+    "Vm",
+    "VmSystemInfo",
+    "VmDistribution",
+    "VmDiskInfo",
+    "VmDiskTask",
     # Contact (phonebook)
     "Contact",
     "ContactEntry",

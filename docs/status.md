@@ -453,24 +453,24 @@ Requires the `profile` (or legacy `parental`) permission — grant it from the F
 
 | Method   | Route                  | Function | Tested   |
 | -------- | ---------------------- | -------- | :------: |
-| GET      | `/vm/`                 | —        | —        |
-| GET      | `/vm/{id}`             | —        | —        |
-| POST     | `/vm/`                 | —        | —        |
-| PUT      | `/vm/{id}`             | —        | —        |
-| DELETE   | `/vm/{id}`             | —        | —        |
-| GET      | `/vm/info/`            | —        | —        |
-| GET      | `/vm/distros/`         | —        | —        |
-| POST     | `/vm/{id}/start`       | —        | —        |
-| POST     | `/vm/{id}/stop`        | —        | —        |
-| POST     | `/vm/{id}/restart`     | —        | —        |
-| POST     | `/vm/{id}/powerbutton` | —        | —        |
-| GET      | `/vm/{id}/console`     | —        | —        |
-| GET      | `/vm/{id}/vnc`         | —        | —        |
-| GET      | `/vm/disk/task/{id}`   | —        | —        |
-| DELETE   | `/vm/disk/task/{id}`   | —        | —        |
-| POST     | `/vm/disk/create`      | —        | —        |
-| POST     | `/vm/disk/info`        | —        | —        |
-| POST     | `/vm/disk/resize`      | —        | —        |
+| GET      | `/vm/`                 | `fb.vm.list()`                       | —        |
+| GET      | `/vm/{id}`             | `fb.vm.get(id)`                      | —        |
+| POST     | `/vm/`                 | `fb.vm.create(**kwargs)`             | —        |
+| PUT      | `/vm/{id}`             | `fb.vm.update(id, **kwargs)`         | —        |
+| DELETE   | `/vm/{id}`             | `fb.vm.delete(id)`                   | —        |
+| GET      | `/vm/info/`            | `fb.vm.info()`                       | —        |
+| GET      | `/vm/distros/`         | `fb.vm.distros()`                    | —        |
+| POST     | `/vm/{id}/start`       | `fb.vm.start(id)`                    | —        |
+| POST     | `/vm/{id}/stop`        | `fb.vm.stop(id)`                     | —        |
+| POST     | `/vm/{id}/restart`     | `fb.vm.restart(id)`                  | —        |
+| POST     | `/vm/{id}/powerbutton` | `fb.vm.powerbutton(id)`              | —        |
+| GET      | `/vm/{id}/console`     | `fb.vm.console_url(id)`              | —        |
+| GET      | `/vm/{id}/vnc`         | `fb.vm.vnc_url(id)`                  | —        |
+| GET      | `/vm/disk/task/{id}`   | `fb.vm.disk_task(id)`                | —        |
+| DELETE   | `/vm/disk/task/{id}`   | `fb.vm.delete_disk_task(id)`         | —        |
+| POST     | `/vm/disk/create`      | `fb.vm.disk_create(path, size)`      | —        |
+| POST     | `/vm/disk/info`        | `fb.vm.disk_info(path)`              | —        |
+| POST     | `/vm/disk/resize`      | `fb.vm.disk_resize(path, size)`      | —        |
 
 ## VPN Client
 
