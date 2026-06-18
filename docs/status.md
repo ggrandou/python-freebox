@@ -188,11 +188,11 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route                 | Function | Tested   |
 | -------- | --------------------- | -------- | :------: |
-| WS       | `/ws/upload`          | —        | —        |
-| GET      | `/upload/`            | —        | —        |
-| GET      | `/upload/{id}`        | —        | —        |
-| DELETE   | `/upload/{id}`        | —        | —        |
-| DELETE   | `/upload/{id}/cancel` | —        | —        |
+| WS       | `/ws/upload`          | `fb.upload.ws_url()`    | —        |
+| GET      | `/upload/`            | `fb.upload.tasks()`     | —        |
+| GET      | `/upload/{id}`        | `fb.upload.task(id)`    | —        |
+| DELETE   | `/upload/{id}`        | `fb.upload.delete(id)`  | —        |
+| DELETE   | `/upload/{id}/cancel` | `fb.upload.cancel(id)`  | —        |
 
 ## Firewall
 
@@ -246,8 +246,8 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route    | Function | Tested   |
 | -------- | -------- | -------- | :------: |
-| GET      | `/lang/` | —        | —        |
-| POST     | `/lang/` | —        | —        |
+| GET      | `/lang/` | `fb.lang.get()`      | —        |
+| POST     | `/lang/` | `fb.lang.set(lang)`  | —        |
 
 ## LCD
 
@@ -306,55 +306,55 @@ Requires the `profile` (or legacy `parental`) permission — grant it from the F
 
 | Method   | Route                                    | Function | Tested   |
 | -------- | ---------------------------------------- | -------- | :------: |
-| GET      | `/player`                                | —        | —        |
-| GET      | `/player/{id}/api/v6/status/`            | —        | —        |
-| GET      | `/player/{id}/api/v6/control/volume/`    | —        | —        |
-| PUT      | `/player/{id}/api/v6/control/volume/`    | —        | —        |
-| POST     | `/player/{id}/api/v6/control/open`       | —        | —        |
-| POST     | `/player/{id}/api/v6/control/mediactrl/` | —        | —        |
+| GET      | `/player`                                | `fb.player.players()`              | —        |
+| GET      | `/player/{id}/api/v6/status/`            | `fb.player.status(id)`             | —        |
+| GET      | `/player/{id}/api/v6/control/volume/`    | `fb.player.volume(id)`             | —        |
+| PUT      | `/player/{id}/api/v6/control/volume/`    | `fb.player.set_volume(id, ...)`    | —        |
+| POST     | `/player/{id}/api/v6/control/open`       | `fb.player.open(id, url)`          | —        |
+| POST     | `/player/{id}/api/v6/control/mediactrl/` | `fb.player.mediactrl(id, cmd)`     | —        |
 
 ## Profile Management
 
 | Method   | Route           | Function | Tested   |
 | -------- | --------------- | -------- | :------: |
-| GET      | `/profile`      | —        | —        |
-| GET      | `/profile/{id}` | —        | —        |
-| POST     | `/profile/`     | —        | —        |
-| PUT      | `/profile/3`    | —        | —        |
-| DELETE   | `/profile/{id}` | —        | —        |
+| GET      | `/profile`      | `fb.profile.profiles()`          | —        |
+| GET      | `/profile/{id}` | `fb.profile.profile(id)`         | —        |
+| POST     | `/profile/`     | `fb.profile.create(...)`         | —        |
+| PUT      | `/profile/{id}` | `fb.profile.update(id, ...)`     | —        |
+| DELETE   | `/profile/{id}` | `fb.profile.delete(id)`          | —        |
 
 ## PVR (TV Recording)
 
 | Method   | Route                  | Function | Tested   |
 | -------- | ---------------------- | -------- | :------: |
-| GET      | `/pvr/config/`         | —        | —        |
-| PUT      | `/pvr/config/`         | —        | —        |
-| GET      | `/pvr/programmed/`     | —        | —        |
-| GET      | `/pvr/programmed/{id}` | —        | —        |
-| POST     | `/pvr/programmed/`     | —        | —        |
-| PUT      | `/pvr/programmed/{id}` | —        | —        |
-| DELETE   | `/pvr/programmed/{id}` | —        | —        |
-| GET      | `/pvr/finished/`       | —        | —        |
-| GET      | `/pvr/finished/{id}`   | —        | —        |
-| PUT      | `/pvr/finished/{id}`   | —        | —        |
-| DELETE   | `/pvr/finished/{id}`   | —        | —        |
-| GET      | `/pvr/media/`          | —        | —        |
-| GET      | `/pvr/quota/`          | —        | —        |
-| PUT      | `/pvr/quota/`          | —        | —        |
+| GET      | `/pvr/config/`         | `fb.pvr.config()`                      | —        |
+| PUT      | `/pvr/config/`         | `fb.pvr.set_config(...)`               | —        |
+| GET      | `/pvr/programmed/`     | `fb.pvr.programmed()`                  | —        |
+| GET      | `/pvr/programmed/{id}` | `fb.pvr.programmed_record(id)`         | —        |
+| POST     | `/pvr/programmed/`     | `fb.pvr.create_programmed(...)`        | —        |
+| PUT      | `/pvr/programmed/{id}` | `fb.pvr.update_programmed(id, ...)`    | —        |
+| DELETE   | `/pvr/programmed/{id}` | `fb.pvr.delete_programmed(id)`         | —        |
+| GET      | `/pvr/finished/`       | `fb.pvr.finished()`                    | —        |
+| GET      | `/pvr/finished/{id}`   | `fb.pvr.finished_record(id)`           | —        |
+| PUT      | `/pvr/finished/{id}`   | `fb.pvr.update_finished(id, ...)`      | —        |
+| DELETE   | `/pvr/finished/{id}`   | `fb.pvr.delete_finished(id)`           | —        |
+| GET      | `/pvr/media/`          | `fb.pvr.media()`                       | —        |
+| GET      | `/pvr/quota/`          | `fb.pvr.quota()`                       | —        |
+| PUT      | `/pvr/quota/`          | `fb.pvr.request_quota()`               | —        |
 
 ## RAID
 
 | Method   | Route                                  | Function | Tested   |
 | -------- | -------------------------------------- | -------- | :------: |
-| GET      | `/storage/raid/`                       | —        | —        |
-| GET      | `/storage/raid/{id}`                   | —        | —        |
-| POST     | `/storage/raid/`                       | —        | —        |
-| PUT      | `/storage/raid/{id}`                   | —        | —        |
-| DELETE   | `/storage/raid/{id}`                   | —        | —        |
-| PUT      | `/storage/raid/{id}/members`           | —        | —        |
-| POST     | `/storage/raid/{id}/members/addspares` | —        | —        |
-| DELETE   | `/storage/raid/{id}/members/faulty`    | —        | —        |
-| POST     | `/storage/raid/{id}/forcestart`        | —        | —        |
+| GET      | `/storage/raid/`                       | `fb.raid.arrays()`                      | —        |
+| GET      | `/storage/raid/{id}`                   | `fb.raid.array(id)`                     | —        |
+| POST     | `/storage/raid/`                       | `fb.raid.create(...)`                   | —        |
+| PUT      | `/storage/raid/{id}`                   | `fb.raid.set_state(id, state)`          | —        |
+| DELETE   | `/storage/raid/{id}`                   | `fb.raid.delete(id)`                    | —        |
+| PUT      | `/storage/raid/{id}/members`           | `fb.raid.add_members(id, ...)`          | —        |
+| POST     | `/storage/raid/{id}/members/addspares` | `fb.raid.add_spares(id)`                | —        |
+| DELETE   | `/storage/raid/{id}/members/faulty`    | `fb.raid.remove_faulty(id)`             | —        |
+| POST     | `/storage/raid/{id}/forcestart`        | `fb.raid.forcestart(id)`                | —        |
 
 ## RRD Stats
 
@@ -384,8 +384,9 @@ Requires the `profile` (or legacy `parental`) permission — grant it from the F
 
 | Method   | Route             | Function | Tested   |
 | -------- | ----------------- | -------- | :------: |
-| GET      | `/standby/status` | —        | —        |
-| PUT      | `/standby/config` | —        | —        |
+| GET      | `/standby/status` | `fb.standby.status()`          | —        |
+| GET      | `/standby/config/`| `fb.standby.config()`          | —        |
+| PUT      | `/standby/config` | `fb.standby.set_config(...)`   | —        |
 
 ## Storage
 
@@ -437,8 +438,8 @@ Requires the `profile` (or legacy `parental`) permission — grant it from the F
 
 | Method   | Route             | Function | Tested   |
 | -------- | ----------------- | -------- | :------: |
-| GET      | `/upnpav/config/` | —        | —        |
-| PUT      | `/upnpav/config/` | —        | —        |
+| GET      | `/upnpav/config/` | `fb.upnpav.config()`         | —        |
+| PUT      | `/upnpav/config/` | `fb.upnpav.set_config(...)`  | —        |
 
 ## UPnP IGD
 
@@ -560,5 +561,5 @@ Requires the `profile` (or legacy `parental`) permission — grant it from the F
 
 | Method   | Route          | Function | Tested   |
 | -------- | -------------- | -------- | :------: |
-| GET      | `/camera/`     | —        | —        |
-| GET      | `/camera/{id}` | —        | —        |
+| GET      | `/camera/`     | `fb.camera.cameras()`    | —        |
+| GET      | `/camera/{id}` | `fb.camera.camera(id)`   | —        |

@@ -7,9 +7,18 @@ from typing import Any
 import httpx
 
 from freebox.airmedia import AirMedia
+from freebox.camera import Cameras
 from freebox.contact import Contact
 from freebox.fs import Fs
 from freebox.home import Home
+from freebox.lang import Lang
+from freebox.player import Players
+from freebox.profile import Profiles
+from freebox.pvr import Pvr
+from freebox.raid import Raid
+from freebox.standby import Standby
+from freebox.upload import Upload
+from freebox.upnpav import UpnpAv
 from freebox.vm import VirtualMachines
 from freebox.auth import Auth, raise_for_error_code
 from freebox.call import Call
@@ -102,6 +111,51 @@ class Freebox:
     def permissions(self) -> dict[str, bool]:
         """App permissions granted by the user."""
         return self._auth.permissions
+
+    @property
+    def camera(self) -> Cameras:
+        """Access the Camera API."""
+        return Cameras(self)
+
+    @property
+    def lang(self) -> Lang:
+        """Access the Language API."""
+        return Lang(self)
+
+    @property
+    def player(self) -> Players:
+        """Access the Player API."""
+        return Players(self)
+
+    @property
+    def profile(self) -> Profiles:
+        """Access the Profile Management API."""
+        return Profiles(self)
+
+    @property
+    def pvr(self) -> Pvr:
+        """Access the PVR (TV Recording) API."""
+        return Pvr(self)
+
+    @property
+    def raid(self) -> Raid:
+        """Access the RAID API."""
+        return Raid(self)
+
+    @property
+    def standby(self) -> Standby:
+        """Access the Standby API."""
+        return Standby(self)
+
+    @property
+    def upload(self) -> Upload:
+        """Access the File Upload API."""
+        return Upload(self)
+
+    @property
+    def upnpav(self) -> UpnpAv:
+        """Access the UPnP AV API."""
+        return UpnpAv(self)
 
     @property
     def vm(self) -> VirtualMachines:

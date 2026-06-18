@@ -1,4 +1,21 @@
 from freebox.airmedia import AirMedia, AirMediaConfig, AirMediaReceiver
+from freebox.camera import Camera, Cameras
+from freebox.lang import Lang, LanguageSupport
+from freebox.player import (
+    Player,
+    PlayerStatus,
+    PlayerStatusCapabilities,
+    PlayerStatusForegroundApp,
+    PlayerStatusInformations,
+    PlayerVolume,
+    Players,
+)
+from freebox.profile import Profile, Profiles
+from freebox.pvr import Pvr, PvrConfig, PvrFinished, PvrMedia, PvrProgrammed, PvrQuota
+from freebox.raid import Raid, RaidArray, RaidDisk, RaidMember
+from freebox.standby import Standby, StandbyConfig, StandbyStatus
+from freebox.upload import Upload, UploadTask
+from freebox.upnpav import UpnpAv, UpnpAvConfig
 from freebox.home import (
     Home,
     HomeAdapter,
@@ -189,6 +206,45 @@ from freebox.exceptions import (
 __all__ = [
     # Client
     "Freebox",
+    # Camera
+    "Camera",
+    "Cameras",
+    # Language
+    "Lang",
+    "LanguageSupport",
+    # Player
+    "Player",
+    "PlayerStatus",
+    "PlayerStatusCapabilities",
+    "PlayerStatusForegroundApp",
+    "PlayerStatusInformations",
+    "PlayerVolume",
+    "Players",
+    # Profile
+    "Profile",
+    "Profiles",
+    # PVR
+    "Pvr",
+    "PvrConfig",
+    "PvrFinished",
+    "PvrMedia",
+    "PvrProgrammed",
+    "PvrQuota",
+    # RAID
+    "Raid",
+    "RaidArray",
+    "RaidDisk",
+    "RaidMember",
+    # Standby
+    "Standby",
+    "StandbyConfig",
+    "StandbyStatus",
+    # Upload
+    "Upload",
+    "UploadTask",
+    # UPnP AV
+    "UpnpAv",
+    "UpnpAvConfig",
     # Home Automation
     "Home",
     "HomeAdapter",
