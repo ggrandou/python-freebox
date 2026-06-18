@@ -17,6 +17,7 @@ from freebox.lan import Lan
 from freebox.sfp import Sfp
 from freebox.switch import Switch
 from freebox.system import System
+from freebox.update import Update
 from freebox.vpn import VpnClient, VpnServer
 from freebox.wifi import Wifi
 
@@ -116,6 +117,11 @@ class Freebox:
     def system(self) -> System:
         """Access the System API."""
         return System(self)
+
+    @property
+    def update(self) -> Update:
+        """Access the Update API."""
+        return Update(self)
 
     @property
     def vpn_server(self) -> VpnServer:

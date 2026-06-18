@@ -425,7 +425,7 @@ Legend: ✓ = done · — = not done yet
 
 | Method   | Route      | Function | Tested   |
 | -------- | ---------- | -------- | :------: |
-| GET      | `/update/` | —        | —        |
+| GET      | `/update/` | `fb.update.status()` | ✓        |
 
 ## UPnP AV
 

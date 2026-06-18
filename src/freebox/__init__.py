@@ -98,6 +98,7 @@ from freebox.system import (
     SystemModelInfo,
     SystemSensor,
 )
+from freebox.update import Update, UpdateStatus, UpgradeState
 from freebox.discovery import DiscoveryInfo, discover, discover_http, discover_mdns, discover_remote_port
 from freebox.events import EventStream, Notification
 from freebox.exceptions import (
@@ -200,6 +201,10 @@ __all__ = [
     "SystemFan",
     "SystemModelInfo",
     "SystemSensor",
+    # Update
+    "Update",
+    "UpdateStatus",
+    "UpgradeState",
     # Discovery
     "DiscoveryInfo",
     "discover",
