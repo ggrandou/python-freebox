@@ -23,6 +23,7 @@ from freebox.rrd import Rrd
 from freebox.sfp import Sfp
 from freebox.switch import Switch
 from freebox.system import System
+from freebox.tftp import Tftp
 from freebox.update import Update
 from freebox.upnpigd import UpnpIgd
 from freebox.vpn import VpnClient, VpnServer
@@ -154,6 +155,11 @@ class Freebox:
     def system(self) -> System:
         """Access the System API."""
         return System(self)
+
+    @property
+    def tftp(self) -> Tftp:
+        """Access the TFTP server API."""
+        return Tftp(self)
 
     @property
     def update(self) -> Update:

@@ -104,6 +104,7 @@ from freebox.system import (
     SystemModelInfo,
     SystemSensor,
 )
+from freebox.tftp import Tftp, TftpConfig
 from freebox.update import Update, UpdateStatus, UpgradeState
 from freebox.upnpigd import UpnpIgd, UpnpIgdConfig, UpnpIgdRedir
 from freebox.discovery import DiscoveryInfo, discover, discover_http, discover_mdns, discover_remote_port
@@ -231,6 +232,9 @@ __all__ = [
     "SystemFan",
     "SystemModelInfo",
     "SystemSensor",
+    # TFTP
+    "Tftp",
+    "TftpConfig",
     # Update
     "Update",
     "UpdateStatus",

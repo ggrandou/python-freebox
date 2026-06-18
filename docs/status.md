@@ -417,9 +417,10 @@ Legend: ✓ = done · — = not done yet
 
 ## TFTP
 
-| Method   | Route           | Function | Tested   |
-| -------- | --------------- | -------- | :------: |
-| GET      | `/tftp/config/` | —        | —        |
+| Method   | Route           | Function               | Tested   |
+| -------- | --------------- | ---------------------- | :------: |
+| GET      | `/tftp/config/` | `fb.tftp.config()`     | ✓        |
+| PUT      | `/tftp/config/` | `fb.tftp.set_config()` | —        |
 
 ## Update
 
