@@ -1,6 +1,5 @@
 import hashlib
 import hmac
-import stat
 
 import pytest
 
@@ -45,55 +44,16 @@ def test_raise_for_error_code(code, exc_class):
     assert exc_info.value.error_code == code
 
 
-# ── Token persistence ──────────────────────────────────────────────────────────
+# ── Token preload ──────────────────────────────────────────────────────────────
 
-class TestTokenPersistence:
-    def test_load_token_no_file(self, auth):
-        assert auth.load_token() is False
-        assert auth.app_token is None
+def test_token_param_preloads_app_token():
+    auth = Auth("id", "App", "1.0", "dev", token=APP_TOKEN)
+    assert auth.app_token == APP_TOKEN
 
-    def test_load_token_empty_file(self, auth):
-        auth.token_file.write_text("   ")
-        assert auth.load_token() is False
-        assert auth.app_token is None
 
-    def test_load_token_success(self, auth):
-        auth.token_file.write_text(APP_TOKEN)
-        assert auth.load_token() is True
-        assert auth.app_token == APP_TOKEN
-
-    def test_load_token_strips_whitespace(self, auth):
-        auth.token_file.write_text(f"  {APP_TOKEN}\n")
-        auth.load_token()
-        assert auth.app_token == APP_TOKEN
-
-    def test_save_token_writes_file(self, auth):
-        auth.save_token(APP_TOKEN)
-        assert auth.token_file.read_text() == APP_TOKEN
-
-    def test_save_token_sets_permissions(self, auth):
-        auth.save_token(APP_TOKEN)
-        mode = auth.token_file.stat().st_mode & 0o777
-        assert mode == 0o600
-
-    def test_save_token_sets_attribute(self, auth):
-        auth.save_token(APP_TOKEN)
-        assert auth.app_token == APP_TOKEN
-
-    def test_save_token_no_file(self, auth):
-        auth.token_file = None
-        auth.save_token(APP_TOKEN)  # should not raise
-        assert auth.app_token == APP_TOKEN
-
-    def test_clear_token_removes_file(self, auth):
-        auth.token_file.write_text(APP_TOKEN)
-        auth.app_token = APP_TOKEN
-        auth.clear_token()
-        assert not auth.token_file.exists()
-        assert auth.app_token is None
-
-    def test_clear_token_no_file(self, auth):
-        auth.clear_token()  # should not raise when file is absent
+def test_no_token_param_starts_empty():
+    auth = Auth("id", "App", "1.0", "dev")
+    assert auth.app_token is None
 
 
 # ── Registration ───────────────────────────────────────────────────────────────
@@ -129,17 +89,15 @@ class TestRegister:
         with pytest.raises(AuthorizationTimeout):
             auth.register(self._make_request(["timeout"]))
 
-    def test_prompts_user(self, tmp_path):
+    def test_prompts_user(self):
         messages = []
-        auth = Auth("id", "App", "1.0", "dev",
-                    token_file=tmp_path / "tok",
-                    on_pending=messages.append)
+        auth = Auth("id", "App", "1.0", "dev", on_pending=messages.append)
         auth.register(self._make_request(["granted"]))
         assert any("Freebox" in m for m in messages)
 
-    def test_token_saved_to_file(self, auth):
+    def test_token_stored_in_memory(self, auth):
         auth.register(self._make_request(["granted"]))
-        assert auth.token_file.read_text() == APP_TOKEN
+        assert auth.app_token == APP_TOKEN
 
 
 # ── Session ────────────────────────────────────────────────────────────────────

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from pathlib import Path
 from typing import Any
 
 import httpx
@@ -44,6 +43,7 @@ from freebox.switch import Switch
 from freebox.system import System
 from freebox.sharelink import ShareLinks
 from freebox.storage import Storage
+from freebox.store import CredentialStore, Credentials
 from freebox.tftp import Tftp
 from freebox.update import Update
 from freebox.upnpigd import UpnpIgd
@@ -65,7 +65,7 @@ class Freebox:
 
         with Freebox(app_id="com.example.app", app_name="My App",
                      app_version="1.0", device_name="my-pc",
-                     token_file=Path("~/.freebox_token")) as fb:
+                     store=CredentialStore("com.example.app")) as fb:
             status = fb.get("connection/")
     """
 
@@ -76,25 +76,39 @@ class Freebox:
         app_name: str,
         app_version: str,
         device_name: str,
-        host: str = _DEFAULT_HOST,
+        host: str | None = None,
         port: int | None = None,
-        token_file: Path | None = None,
+        token: str | None = None,
+        store: CredentialStore | None = None,
         on_pending: Callable[[str], None] | None = None,
     ) -> None:
         self._host = host
         self._port = port
+        self._store = store
         self._auth = Auth(
             app_id=app_id,
             app_name=app_name,
             app_version=app_version,
             device_name=device_name,
-            token_file=token_file,
+            token=token,
             on_pending=on_pending,
         )
         self.discovery: DiscoveryInfo | None = None
+        self._http_inst: httpx.Client | None = None
 
-        base = f"https://{host}" + (f":{port}" if port else "")
-        self._http = httpx.Client(base_url=base, verify=ssl_context())
+    @property
+    def _http(self) -> httpx.Client:
+        if self._http_inst is None:
+            base = f"https://{self._host or _DEFAULT_HOST}"
+            if self._port:
+                base += f":{self._port}"
+            self._http_inst = httpx.Client(base_url=base, verify=ssl_context())
+        return self._http_inst
+
+    def _invalidate_http(self) -> None:
+        if self._http_inst is not None:
+            self._http_inst.close()
+            self._http_inst = None
 
     # ── Context manager ────────────────────────────────────────────────────────
 
@@ -314,10 +328,28 @@ class Freebox:
 
     def open(self) -> None:
         """Discover the Freebox, register the app if needed, and open a session."""
+        loaded_creds: Credentials | None = None
+        if self._store:
+            loaded_creds = self._store.load()
+            if loaded_creds:
+                self._auth.app_token = loaded_creds.app_token
+                if self._host is None and loaded_creds.host:
+                    self._host = loaded_creds.host
+                    self._invalidate_http()
+                if self._port is None and loaded_creds.port:
+                    self._port = loaded_creds.port
+                    self._invalidate_http()
+
         self._discover()
-        self._auth.load_token()
+
         if not self._auth.app_token:
             self._auth.register(self._raw_request)
+            self._save_to_store()
+        elif self._store:
+            new_creds = self._build_credentials()
+            if new_creds != loaded_creds:
+                self._store.save(new_creds)
+
         self._auth.open_session(self._raw_request)
 
     def close(self) -> None:
@@ -395,7 +427,7 @@ class Freebox:
 
     def _ws_url(self, path: str) -> str:
         port_str = f":{self._port}" if self._port else ""
-        return f"wss://{self._host}{port_str}" + _API_BASE.format(version=self._api_version) + path.lstrip("/")
+        return f"wss://{self._host or _DEFAULT_HOST}{port_str}" + _API_BASE.format(version=self._api_version) + path.lstrip("/")
 
     def _raw_request(self, method: str, path: str, *, authenticated: bool = True, **kwargs: Any) -> Any:
         """Send a request and return the result, raising on API errors."""
@@ -423,8 +455,11 @@ class Freebox:
         except TokenRevoked:
             if not _retry:
                 raise
-            self._auth.clear_token()
+            self._auth.app_token = None
+            if self._store:
+                self._store.delete()
             self._auth.register(self._raw_request)
+            self._save_to_store()
             self._auth.open_session(self._raw_request)
             return self._request(method, path, _retry=False, **kwargs)
         except Exception as exc:
@@ -433,5 +468,20 @@ class Freebox:
             self._auth.open_session(self._raw_request)
             return self._request(method, path, _retry=False, **kwargs)
 
+    def _build_credentials(self) -> Credentials:
+        return Credentials(
+            app_token=self._auth.app_token,
+            host=self._host or _DEFAULT_HOST,
+            port=self._port,
+            app_id=self._auth.app_id,
+            app_name=self._auth.app_name,
+            device_name=self._auth.device_name,
+            discovery=self.discovery,
+        )
+
+    def _save_to_store(self) -> None:
+        if self._store and self._auth.app_token:
+            self._store.save(self._build_credentials())
+
     def _discover(self) -> None:
-        self.discovery = discover_http(self._host)
+        self.discovery = discover_http(self._host or _DEFAULT_HOST)

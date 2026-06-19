@@ -6,7 +6,6 @@ import hmac
 import time
 from collections.abc import Callable
 from enum import Enum
-from pathlib import Path
 from typing import Any
 
 from freebox.exceptions import (
@@ -56,51 +55,18 @@ class Auth:
         app_name: str,
         app_version: str,
         device_name: str,
-        token_file: Path | None = None,
+        token: str | None = None,
         on_pending: Callable[[str], None] | None = None,
     ) -> None:
         self.app_id = app_id
         self.app_name = app_name
         self.app_version = app_version
         self.device_name = device_name
-        self.token_file = token_file
         self.on_pending: Callable[[str], None] = on_pending or _default_prompt
 
-        self.app_token: str | None = None
+        self.app_token: str | None = token
         self.session_token: str | None = None
         self.permissions: dict[str, bool] = {}
-
-    # ── Token persistence ──────────────────────────────────────────────────────
-
-    def load_token(self) -> bool:
-        """Load app_token from file. Returns True if a token was found."""
-        if not self.token_file:
-            return False
-        path = self.token_file.expanduser()
-        if not path.exists():
-            return False
-        token = path.read_text().strip()
-        if not token:
-            return False
-        self.app_token = token
-        return True
-
-    def save_token(self, token: str) -> None:
-        """Persist app_token to disk with restricted permissions (0o600)."""
-        self.app_token = token
-        if not self.token_file:
-            return
-        path = self.token_file.expanduser()
-        path.write_text(token)
-        path.chmod(0o600)
-
-    def clear_token(self) -> None:
-        """Remove the stored app_token from memory and disk."""
-        self.app_token = None
-        if self.token_file:
-            path = self.token_file.expanduser()
-            if path.exists():
-                path.unlink()
 
     # ── Registration ───────────────────────────────────────────────────────────
 
@@ -146,7 +112,7 @@ class Auth:
                 raise AuthorizationTimeout("Authorization request timed out", status.value)
             raise AuthenticationError(f"Unexpected authorization status: {status.value}", status.value)
 
-        self.save_token(app_token)
+        self.app_token = app_token
 
     # ── Session ────────────────────────────────────────────────────────────────
 

@@ -9,13 +9,12 @@ Only read-only operations are performed.
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 
-from freebox import Freebox
+from freebox import CredentialStore, Freebox
 from freebox.exceptions import FreeboxError
 
 HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
-TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+STORE = CredentialStore("fr.freebox.python_test")
 
 
 def section(title: str) -> None:
@@ -35,7 +34,7 @@ def main() -> None:
         app_version="0.1",
         device_name="test-client",
         host=HOST,
-        token_file=TOKEN_FILE,
+        store=STORE,
     )
     fb.open()
 

@@ -60,6 +60,7 @@ from freebox.downloads import (
     Downloads,
 )
 from freebox.auth import Auth, AuthorizationStatus
+from freebox.store import CredentialStore, Credentials
 from freebox.call import Call, CallAccount, CallEntry, VoicemailEntry
 from freebox.client import Freebox
 from freebox.dhcp import (
@@ -302,6 +303,9 @@ __all__ = [
     # Auth
     "Auth",
     "AuthorizationStatus",
+    # Credential store
+    "CredentialStore",
+    "Credentials",
     # Call / Voicemail
     "Call",
     "CallEntry",

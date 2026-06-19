@@ -44,13 +44,13 @@ def add_logout(httpx_mock):
     )
 
 
-def make_freebox(token_file=None, on_pending=None) -> Freebox:
+def make_freebox(token=None, on_pending=None) -> Freebox:
     return Freebox(
         app_id=APP_ID,
         app_name=APP_NAME,
         app_version=APP_VERSION,
         device_name=DEVICE_NAME,
-        token_file=token_file,
+        token=token,
         on_pending=on_pending or (lambda _: None),
     )
 
@@ -58,24 +58,19 @@ def make_freebox(token_file=None, on_pending=None) -> Freebox:
 # ── open / close ───────────────────────────────────────────────────────────────
 
 class TestOpen:
-    def test_open_with_existing_token(self, httpx_mock, tmp_path):
-        token_file = tmp_path / "token"
-        token_file.write_text(APP_TOKEN)
-
+    def test_open_with_existing_token(self, httpx_mock):
         add_discovery(httpx_mock)
         add_login(httpx_mock)
         add_session(httpx_mock)
 
-        fb = make_freebox(token_file=token_file)
+        fb = make_freebox(token=APP_TOKEN)
         fb.open()
 
         assert fb.discovery.uid == "test-uid-1234"
         assert fb._auth.session_token == SESSION_TOKEN
         assert fb.permissions == {"settings": True}
 
-    def test_open_registers_when_no_token(self, httpx_mock, tmp_path):
-        token_file = tmp_path / "token"
-
+    def test_open_registers_when_no_token(self, httpx_mock):
         add_discovery(httpx_mock)
         httpx_mock.add_response(
             url=f"{API}/login/authorize/",
@@ -89,38 +84,32 @@ class TestOpen:
         add_login(httpx_mock)
         add_session(httpx_mock)
 
-        fb = make_freebox(token_file=token_file)
+        fb = make_freebox()
         fb.open()
 
-        assert token_file.read_text() == APP_TOKEN
+        assert fb._auth.app_token == APP_TOKEN
         assert fb._auth.session_token == SESSION_TOKEN
 
-    def test_close_sends_logout(self, httpx_mock, tmp_path):
-        token_file = tmp_path / "token"
-        token_file.write_text(APP_TOKEN)
-
+    def test_close_sends_logout(self, httpx_mock):
         add_discovery(httpx_mock)
         add_login(httpx_mock)
         add_session(httpx_mock)
         add_logout(httpx_mock)
 
-        fb = make_freebox(token_file=token_file)
+        fb = make_freebox(token=APP_TOKEN)
         fb.open()
         fb.close()
 
         assert fb._auth.session_token is None
         assert fb.permissions == {}
 
-    def test_context_manager(self, httpx_mock, tmp_path):
-        token_file = tmp_path / "token"
-        token_file.write_text(APP_TOKEN)
-
+    def test_context_manager(self, httpx_mock):
         add_discovery(httpx_mock)
         add_login(httpx_mock)
         add_session(httpx_mock)
         add_logout(httpx_mock)
 
-        with make_freebox(token_file=token_file) as fb:
+        with make_freebox(token=APP_TOKEN) as fb:
             assert fb._auth.session_token == SESSION_TOKEN
         assert fb._auth.session_token is None
 
@@ -129,13 +118,11 @@ class TestOpen:
 
 class TestHttpMethods:
     @pytest.fixture(autouse=True)
-    def opened_fb(self, httpx_mock, tmp_path):
-        token_file = tmp_path / "token"
-        token_file.write_text(APP_TOKEN)
+    def opened_fb(self, httpx_mock):
         add_discovery(httpx_mock)
         add_login(httpx_mock)
         add_session(httpx_mock)
-        self.fb = make_freebox(token_file=token_file)
+        self.fb = make_freebox(token=APP_TOKEN)
         self.fb.open()
 
     def test_get(self, httpx_mock):
@@ -169,16 +156,13 @@ class TestHttpMethods:
 
 class TestAutoRecovery:
     @pytest.fixture(autouse=True)
-    def opened_fb(self, httpx_mock, tmp_path):
-        token_file = tmp_path / "token"
-        token_file.write_text(APP_TOKEN)
+    def opened_fb(self, httpx_mock):
         add_discovery(httpx_mock)
         add_login(httpx_mock)
         add_session(httpx_mock)
-        self.fb = make_freebox(token_file=token_file)
+        self.fb = make_freebox(token=APP_TOKEN)
         self.fb.open()
         self.httpx_mock = httpx_mock
-        self.token_file = token_file
 
     def test_renews_session_on_auth_required(self):
         self.httpx_mock.add_response(
@@ -219,7 +203,7 @@ class TestAutoRecovery:
 
         result = self.fb.get("system/")
         assert result == {"firmware_version": "4.12.1"}
-        assert self.token_file.read_text() == "new-app-token"
+        assert self.fb._auth.app_token == "new-app-token"
 
     def test_does_not_retry_twice_on_auth_required(self):
         self.httpx_mock.add_response(

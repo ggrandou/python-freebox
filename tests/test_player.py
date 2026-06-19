@@ -31,9 +31,7 @@ PLAYER_DATA = {
 
 
 @pytest.fixture
-def fb(httpx_mock, tmp_path):
-    token_file = tmp_path / "token"
-    token_file.write_text("test-app-token")
+def fb(httpx_mock):
     httpx_mock.add_response(url=f"{BASE}/api_version", json=DISCOVERY_DATA)
     httpx_mock.add_response(
         url=f"{API}/login/",
@@ -46,7 +44,7 @@ def fb(httpx_mock, tmp_path):
     )
     client = Freebox(
         app_id=APP_ID, app_name=APP_NAME, app_version=APP_VERSION,
-        device_name=DEVICE_NAME, token_file=token_file,
+        device_name=DEVICE_NAME, token="test-app-token",
         on_pending=lambda _: None,
     )
     client.open()

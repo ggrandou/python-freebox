@@ -4,19 +4,18 @@
 Usage:
     tools/test_lan [freebox_host]
 
-The app token is stored in .freebox_test_token between runs.
+Credentials are loaded via CredentialStore (app_id fr.freebox.python_test).
 """
 from __future__ import annotations
 
 import datetime
 import sys
-from pathlib import Path
 
-from freebox import Freebox
+from freebox import CredentialStore, Freebox
 from freebox.exceptions import FreeboxError
 
 HOST = sys.argv[1] if len(sys.argv) > 1 else "mafreebox.freebox.fr"
-TOKEN_FILE = Path(__file__).parent.parent / ".freebox_test_token"
+STORE = CredentialStore("fr.freebox.python_test")
 
 
 def section(title: str) -> None:
@@ -42,7 +41,7 @@ def main() -> None:
         app_version="0.1",
         device_name="test-client",
         host=HOST,
-        token_file=TOKEN_FILE,
+        store=STORE,
     )
     fb.open()
 

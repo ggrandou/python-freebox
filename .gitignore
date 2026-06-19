@@ -1,6 +1,7 @@
 *.egg-info/
 *.pyc
 *.pyo
+.freebox/
 .freebox_*token
 .pytest_cache/
 .venv/

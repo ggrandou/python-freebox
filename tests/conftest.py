@@ -35,13 +35,12 @@ def discovery_info() -> DiscoveryInfo:
 
 
 @pytest.fixture
-def auth(tmp_path) -> Auth:
+def auth() -> Auth:
     return Auth(
         app_id=APP_ID,
         app_name=APP_NAME,
         app_version=APP_VERSION,
         device_name=DEVICE_NAME,
-        token_file=tmp_path / "token",
         on_pending=lambda msg: None,  # suppress output
     )
 

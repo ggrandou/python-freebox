@@ -24,9 +24,7 @@ _CD_PATH = base64.b64encode(b"/Disque dur/iso/debian.iso").decode()
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
 @pytest.fixture
-def fb(httpx_mock, tmp_path):
-    token_file = tmp_path / "token"
-    token_file.write_text("test-app-token")
+def fb(httpx_mock):
     httpx_mock.add_response(url=f"{BASE}/api_version", json=DISCOVERY_DATA)
     httpx_mock.add_response(
         url=f"{API}/login/",
@@ -42,7 +40,7 @@ def fb(httpx_mock, tmp_path):
         app_name=APP_NAME,
         app_version=APP_VERSION,
         device_name=DEVICE_NAME,
-        token_file=token_file,
+        token="test-app-token",
         on_pending=lambda _: None,
     )
     client.open()
