@@ -7,6 +7,8 @@ name = "freebox"
 version = "0.1.0"
 description = "Python client library for the Freebox API"
 readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE.txt"]
 requires-python = ">=3.11"
 dependencies = [
     "httpx>=0.27",
