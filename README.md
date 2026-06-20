@@ -32,15 +32,14 @@ source setup_env.sh
 ## Quick start
 
 ```python
-from pathlib import Path
-from freebox import Freebox
+from freebox import Freebox, CredentialStore
 
 with Freebox(
     app_id="com.example.myapp",
     app_name="My App",
     app_version="1.0",
     device_name="my-pc",
-    token_file=Path("~/.freebox_token"),
+    store=CredentialStore("com.example.myapp"),
 ) as fb:
     status = fb.connection.status()
     print(status.ipv4, status.rate_up, status.rate_down)
@@ -94,19 +93,27 @@ user presses the **OK** button on the Freebox front panel. A prompt is printed
 to stdout by default; supply `on_pending` to override it:
 
 ```python
+from freebox import Freebox, CredentialStore
+
 fb = Freebox(
     app_id="com.example.myapp",
     app_name="My App",
     app_version="1.0",
     device_name="my-pc",
-    token_file=Path("~/.freebox_token"),
+    store=CredentialStore("com.example.myapp"),
     on_pending=lambda msg: send_notification(msg),
 )
 ```
 
-The app token is stored in `token_file` (mode `0o600`) and reused on
-subsequent runs. `Freebox.open()` raises `AuthorizationDenied` or
-`AuthorizationTimeout` if the user rejects or ignores the request.
+Credentials are stored in a JSON file (mode `0o600`) and reused on subsequent
+runs. `CredentialStore` searches for the file in, in order:
+
+1. `.freebox/` in the current directory
+2. `$XDG_CONFIG_HOME/freebox/` (default: `~/.config/freebox/`)
+3. `/etc/freebox/`
+
+`Freebox.open()` raises `AuthorizationDenied` or `AuthorizationTimeout` if the
+user rejects or ignores the request.
 
 After a successful `open()`, `fb.permissions` returns a `dict[str, bool]`
 listing the permissions granted by the user.
@@ -243,8 +250,7 @@ To connect from outside the local network, use the `api_domain` and
 `https_port` returned by discovery:
 
 ```python
-from freebox import discover_http, Freebox
-from pathlib import Path
+from freebox import discover_http, Freebox, CredentialStore
 
 info = discover_http("mafreebox.freebox.fr")
 
@@ -255,7 +261,7 @@ fb = Freebox(
     device_name="my-pc",
     host=info.api_domain,
     port=info.https_port,
-    token_file=Path("~/.freebox_token"),
+    store=CredentialStore("com.example.myapp"),
 )
 ```
 
