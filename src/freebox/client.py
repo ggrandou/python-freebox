@@ -435,11 +435,18 @@ class Freebox:
         if authenticated and self._auth.session_token:
             headers["X-Fbx-App-Auth"] = self._auth.session_token
         resp = self._http.request(method, self._url(path), headers=headers, **kwargs)
+        # Parse the JSON body before inspecting the HTTP status: the Freebox may
+        # return HTTP 4xx (e.g. 403) while still including a JSON body with an
+        # actionable error_code (e.g. "auth_required").  Reading the body first
+        # lets _request recover from expired sessions via the normal retry path.
         try:
-            resp.raise_for_status()
-        except httpx.HTTPStatusError as exc:
-            raise FreeboxError(str(exc)) from exc
-        body = resp.json()
+            body = resp.json()
+        except Exception:
+            try:
+                resp.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                raise FreeboxError(str(exc)) from exc
+            raise FreeboxError("Unexpected non-JSON response")
         if not body.get("success"):
             raise_for_error_code(body.get("error_code", "unknown"), body.get("msg", ""))
         return body.get("result")
